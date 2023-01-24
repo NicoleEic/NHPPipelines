@@ -2,11 +2,22 @@ StudyFolder=$1
 Subject=$2
 
 echo " "
-echo "Subject: Subject"
-mkdir -p ${StudyFolder}/derivatives/${Subject}/RawData
+echo "Subject: $Subject"
+echo "StudyFolder: $StudyFolder"
+
+
 dir=${StudyFolder}/derivatives/${Subject}/RawData
-imcp ${StudyFolder}/${Subject}/ses-001/anat/sub-032128_ses-001_run-1_T1w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
-imcp ${StudyFolder}/${Subject}/ses-001/anat/sub-032128_ses-001_run-1_T2w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
+if [[ ! -e $dir ]]; then
+    mkdir -p $dir
+    echo $dir
+else
+    echo "$dir already exists"
+fi
+
+
+
+imcp ${StudyFolder}/${Subject}/ses-001/anat/${Subject}_ses-001_run-1_T1w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
+imcp ${StudyFolder}/${Subject}/ses-001/anat/${Subject}_ses-001_run-1_T2w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
 $MRCATDIR/core/bet_macaque.sh ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz ${dir}/${Subject}_ses-001_run-1_T1w_MPR1
 fslmaths ${dir}/${Subject}_ses-001_run-1_T1w_MPR1_brain.nii.gz -bin -dilD -dilD -dilD ${dir}/brain_mask.nii.gz
 #flirt -dof 6 -in ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz -ref ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz -omat ${dir}/mat.mat
