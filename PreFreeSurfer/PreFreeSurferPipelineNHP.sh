@@ -201,7 +201,7 @@ for TXw in ${Modalities} ; do
 
 #### Average Like Scans ####
 
-    if [ `echo $TXwInputImages | wc -w` -gt 1 ] ; then
+  if [ `echo $TXwInputImages | wc -w` -gt 1 ] ; then
 	mkdir -p ${TXwFolder}/Average${TXw}Images
 	#if [ ${AvgrdcSTRING} = "TOPUP" ] ; then
 	#    echo "PERFORMING TOPUP READOUT DISTORTION CORRECTION AND AVERAGING"
@@ -218,6 +218,7 @@ for TXw in ${Modalities} ; do
 
 #### ACPC align T1w and T2w image to 0.7mm MNI T1wTemplate to create native volume space ####
 
+  echo "ACP alignment"
     mkdir -p ${TXwFolder}/ACPCAlignment
     ${RUN} ${PipelineScripts}/ACPCAlignmentNHP.sh \
 	--workingdir=${TXwFolder}/ACPCAlignment \

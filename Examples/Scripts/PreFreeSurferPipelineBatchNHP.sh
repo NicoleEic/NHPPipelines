@@ -11,8 +11,10 @@
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}
 
-Subjlist="sub-032128"
-StudyFolder='/Users/neichert/Downloads/site-ucdavis'
+StudyFolder=$1
+Subjlist=$2
+
+
 
 # Log the originating call
 echo "$@"
@@ -51,7 +53,14 @@ PRINTCOM=""
 
 for Subject in $Subjlist ; do
   echo $Subject
-  . ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
+  #. ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
+
+  # TODO: copy wrapper
+
+  T1wInputImages=${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
+  T2wInputImages=${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
+
+
   #Input Images
   #Detect Number of T1w Images
   #numT1ws=`ls ${StudyFolder}/${Subject}/RawData | grep mpr | wc -l`
