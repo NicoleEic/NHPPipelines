@@ -343,4 +343,6 @@ ${RUN} ${PipelineScripts}/AtlasRegistrationToMNI152_FLIRTandFNIRT.sh \
     --ot2restbrain=${AtlasSpaceFolder}/${T2wImage}_restore_brain \
     --fnirtconfig=${FNIRTConfig}
 
+
+echo 'Finished PreFreeSurferPipelineNHP.sh'
 #### Next stage: FreeSurfer/FreeSurferPipeline.sh
