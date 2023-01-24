@@ -20,7 +20,7 @@ Task="INIT" # "INIT" "PRE" "FREE" "POST" "CLEAN"
 # run the "RENAME" task
 if [[ $Task = "INIT" ]] ; then
   for $Subject in $Subjlist; do
-  ${RUN}  $ScriptsDir/PrePreFreeSurfer.sh \
+  ${RUN}  $ScriptsDir/PrePreFreeSurfer_NE.sh \
   --StudyFolder="$StudyFolder" \
   --Subject="$Subject"
   done
