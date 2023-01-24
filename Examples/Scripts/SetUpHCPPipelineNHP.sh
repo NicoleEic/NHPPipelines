@@ -2,26 +2,27 @@
 
 echo "This script must be SOURCED to correctly setup the environment prior to running any of the other HCP scripts contained here"
 
-# Set up FSL (if not already done so in the running environment)
-#FSLDIR=/usr/share/fsl/5.0
-#. ${FSLDIR}/etc/fslconf/fsl.sh
+# on jalapeno
+if [[ $OSTYPE == "linux" ]] ; then
+    #export FSLDIR=/opt/fmrib/fsl
+    . ${FSLDIR}/etc/fslconf/fsl.sh
+    export HCPPIPEDIR=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
+    export FREESURFER_HOME=/opt/fmrib/FreeSurfer_releases/6.0/
+    . ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
+    export CARET7DIR='/opt/fmrib/bin/wb_command'
+    export MATLAB_HOME='/opt/fmrib/bin/matlab'
 
-# Set up FreeSurfer (if not already done so in the running environment)
-export FREESURFER_HOME=/usr/local/freesurfer-HCP
-. ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
+# local laptop
+elif [[ $OSTYPE == "darwin" ]] ; then
+    . ${FSLDIR}/etc/fslconf/fsl.sh
+    export HCPPIPEDIR=/Users/neichert/code/NHPPipelines
+    export FREESURFER_HOME=/usr/local/freesurfer-HCP
+    . ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
+    export CARET7DIR='/Applications/workbench1.5.0/bin_macosx64'
+ export MATLAB_HOME='/Applications/MATLAB_R2022a.app/bin/matlab'
+fi
 
-#export HCPPIPEDIR=/mnt/pub/devel/NHPHCPPipeline
-export HCPPIPEDIR=/Users/neichert/code/NHPPipelines
-
-#export CARET7DIR=/mnt/devel/devel/workbench/bin_linux64
-#export CARET7DIR=/usr/bin
-export CARET7DIR='/Applications/workbench1.5.0/bin_macosx64'
-
-# ApplyHandClassification
-#export MATLAB_HOME=`which matlab | sed 's/bin\/matlab//g'`
-export MATLAB_HOME='/Applications/MATLAB_R2022a.app/bin/matlab'
 export CLUSTER=2.0
-
 export SPECIES='Macaque'
 
 # Global
