@@ -10,8 +10,10 @@
 
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}
-StudyFolder=$1
-Subjlist=$2
+
+Subjlist="sub-032128"
+StudyFolder='/Users/neichert/Downloads/site-ucdavis'
+
 # Log the originating call
 echo "$@"
 

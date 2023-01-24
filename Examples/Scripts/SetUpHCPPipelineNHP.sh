@@ -10,14 +10,19 @@ echo "This script must be SOURCED to correctly setup the environment prior to ru
 export FREESURFER_HOME=/usr/local/freesurfer-HCP
 . ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
 
-export HCPPIPEDIR=/mnt/pub/devel/NHPHCPPipeline
+#export HCPPIPEDIR=/mnt/pub/devel/NHPHCPPipeline
+export HCPPIPEDIR=/Users/neichert/code/NHPPipelines
 
 #export CARET7DIR=/mnt/devel/devel/workbench/bin_linux64
-export CARET7DIR=/usr/bin
+#export CARET7DIR=/usr/bin
+export CARET7DIR='/Applications/workbench1.5.0/bin_macosx64'
 
 # ApplyHandClassification
-export MATLAB_HOME=`which matlab | sed 's/bin\/matlab//g'`
+#export MATLAB_HOME=`which matlab | sed 's/bin\/matlab//g'`
+export MATLAB_HOME='/Applications/MATLAB_R2022a.app/bin/matlab'
 export CLUSTER=2.0
+
+export SPECIES='Macaque'
 
 # Global
 export HCPPIPEDIR_Templates=${HCPPIPEDIR}/global/templates
@@ -36,11 +41,14 @@ export HCPPIPEDIR_tfMRIAnalysis=${HCPPIPEDIR}/TaskfMRIAnalysis/scripts
 export MATLAB_COMPILER_RUNTIME=/usr/local/MATLAB/MATLAB_Compiler_Runtime
 export NSLOTS=8
 export FreeSurferLabels="${HCPPIPEDIR_Config}/FreeSurferAllLut.txt"
-OS="`lsb_release -a | grep Distributor | awk '{print $3}'`"
+#OS="`lsb_release -a | grep Distributor | awk '{print $3}'`"
+OS='NE_local'
 if [  "$OS" = "CentOS" ] ; then
   export MSMBINDIR=/mnt/pub/devel/MSM/MSM_HOCR_v2/Centos
 elif [  "$OS" = "Ubuntu" ] ; then
   export MSMBINDIR=/mnt/devel/devel/MSM/MSM_HOCR_v2/Ubuntu
+elif [  "$OS" = "NE_local" ] ; then
+  export MSMBINDIR=/Users/neichert/code/external/MSM_HOCR_macOSX
 fi
 export MSMCONFIGDIR=$HCPPIPEDIR/MSMConfig
 export FixDir=/mnt/pub/devel/bcil/fix1.06

@@ -4,6 +4,12 @@ set -e
 #StudyFolder="/media/myelin/brainmappers/Connectome_Project/InVivoMacaques" #Location of Subject folders (named by subjectID)
 #EnvironmentScript="/media/2TBB/Connectome_Project/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
 
+Subjlist="sub-032128"
+StudyFolder='/Users/neichert/Downloads/site-ucdavis'
+EnvironmentScript='/Users/neichert/code/NHPPipelines/Examples/Scripts/SetUpHCPPipelineNHP.sh'
+
+#source $EnvironmentScript
+
 # Requirements for this script
 #  installed versions of: FSL5.0.2 or higher , FreeSurfer (version 5.2 or higher) , gradunwarp (python code from MGH)
 #  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR , PATH (for gradient_unwarp.py)
@@ -13,11 +19,15 @@ echo "Usage: $0 <StudyFolder> <SubjectID1@SubjectID2@SubjectID3...> <RunMode>"
 echo "    Runmode: 0 - 8"
 exit 1
 }
+echo 'hi'
 [ "$1" = "" ] && usage
 
-StudyFolder=$1
-Subjlist=$2
-RunMode=$3
+#StudyFolder=$1
+#Subjlist=$2
+#RunMode=$3
+
+# see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
+RunMode=0
 
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}
@@ -30,7 +40,7 @@ echo "$@"
 #fi
 
 PRINTCOM=""
-#PRINTCOM="echo"
+PRINTCOM="echo"
 
 ########################################## INPUT
 
@@ -110,23 +120,23 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
   Seed="1234"
   ############################################### Modified until here by Takuya Hayashi Nov 4th 2015.
 
-     ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh \
-      --subject="$Subject" \
-      --subjectDIR="$SubjectDIR" \
-      --t1="$T1wImage" \
-      --t1brain="$T1wImageBrain" \
-      --t2="$T2wImage" \
-      --fslinear="$FSLinearTransform" \
-      --gcadir="$GCAdir" \
-      --rescaletrans="$RescaleVolumeTransform" \
-      --asegedit="$AsegEdit" \
-      --controlpoints="$ControlPoints" \
-      --wmedit="$WmEdit" \
-      --t2wflag="$T2wFlag" \
-      --species="$SPECIES" \
-      --runmode="$RunMode" \
-      --seed="$Seed" \
-      --printcom="$PRINTCOM"
+   ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh \
+    --subject="$Subject" \
+    --subjectDIR="$SubjectDIR" \
+    --t1="$T1wImage" \
+    --t1brain="$T1wImageBrain" \
+    --t2="$T2wImage" \
+    --fslinear="$FSLinearTransform" \
+    --gcadir="$GCAdir" \
+    --rescaletrans="$RescaleVolumeTransform" \
+    --asegedit="$AsegEdit" \
+    --controlpoints="$ControlPoints" \
+    --wmedit="$WmEdit" \
+    --t2wflag="$T2wFlag" \
+    --species="$SPECIES" \
+    --runmode="$RunMode" \
+    --seed="$Seed" \
+    --printcom="$PRINTCOM"
       
   # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
 
