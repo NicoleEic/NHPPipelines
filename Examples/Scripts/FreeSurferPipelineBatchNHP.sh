@@ -22,7 +22,7 @@ Subjlist=$2
 #RunMode=$3
 
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
-RunMode=3
+RunMode=5
 
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}

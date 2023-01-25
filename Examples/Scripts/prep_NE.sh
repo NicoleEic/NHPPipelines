@@ -38,11 +38,9 @@ if [[ $Task = "FREE" ]] ; then
 fi
 #
 ## run the "POST-FREESURFER" task
-#if [[ $Task = "POST" ]] ; then
-#  $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh \
-#  --StudyFolder="$StudyFolder" \
-#  --SubjList="$Subjlist"
-#fi
+if [[ $Task = "POST" ]] ; then
+   ${RUN} $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
+fi
 #
 ## run the "CLEAN-UP" task
 #if [[ $Task = "CLEAN" ]] ; then

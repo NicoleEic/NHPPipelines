@@ -1,7 +1,21 @@
-#!/bin/bash 
+#!/bin/bash
+
+if [[ $OSTYPE == "linux" ]] ; then
+  StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives
+  ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
+  RUN='fsl_sub -q long.q sh'
+  #RUN=''
+elif [[ $OSTYPE == "darwin" ]] ; then
+  StudyFolder=/Users/neichert/Downloads/site-ucdavis/derivatives
+  ScriptsDir=/Users/neichert/code/NHPPipelines/Examples/Scripts
+  RUN='sh'
+fi
+
+# source this first outside of script
+#source $ScriptsDir/SetUpHCPPipelineNHP.sh
 
 if [ "$SPECIES" = "" ] ; then echo "ERROR: please export SPECIES first, Macaque or Marmoset"; exit 1;fi
-EnvironmentScript="/mnt/FAI1/devel/NHPHCPPipeline/Examples/Scripts/SetUpHCPPipelineNHP.sh"
+EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
 . ${EnvironmentScript}
 
 StudyFolder=$1;shift
@@ -24,8 +38,7 @@ for Subject in $Subjlist ; do
   #CorrectionSigma="7"
   LOG="-l ${StudyFolder}/${Subject}/logs"
 
-#  ${FSLDIR}/bin/fsl_sub ${QUEUE} ${LOG} \
-     ${HCPPIPEDIR}/PostFreeSurfer/PostFreeSurferPipeline.sh \
+  ${RUN} ${HCPPIPEDIR}/PostFreeSurfer/PostFreeSurferPipeline.sh \
       --path="$StudyFolder" \
       --subject="$Subject" \
       --surfatlasdir="$SurfaceAtlasDIR" \
