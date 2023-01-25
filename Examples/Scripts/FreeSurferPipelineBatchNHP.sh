@@ -4,10 +4,6 @@ set -e
 #StudyFolder="/media/myelin/brainmappers/Connectome_Project/InVivoMacaques" #Location of Subject folders (named by subjectID)
 #EnvironmentScript="/media/2TBB/Connectome_Project/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
 
-Subjlist="sub-032128"
-StudyFolder='/Users/neichert/Downloads/site-ucdavis'
-EnvironmentScript='/Users/neichert/code/NHPPipelines/Examples/Scripts/SetUpHCPPipelineNHP.sh'
-
 #source $EnvironmentScript
 
 # Requirements for this script
@@ -19,11 +15,10 @@ echo "Usage: $0 <StudyFolder> <SubjectID1@SubjectID2@SubjectID3...> <RunMode>"
 echo "    Runmode: 0 - 8"
 exit 1
 }
-echo 'hi'
 [ "$1" = "" ] && usage
 
-#StudyFolder=$1
-#Subjlist=$2
+StudyFolder=$1
+Subjlist=$2
 #RunMode=$3
 
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do

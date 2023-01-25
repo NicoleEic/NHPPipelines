@@ -2,6 +2,8 @@
 
 echo "This script must be SOURCED to correctly setup the environment prior to running any of the other HCP scripts contained here"
 
+# source /Users/neichert/code/NHPPipelines/Examples/Scripts/SetupHCPPipelineNHP.sh
+
 # on jalapeno
 if [[ $OSTYPE == "linux" ]] ; then
     #export FSLDIR=/opt/fmrib/fsl
@@ -16,7 +18,7 @@ if [[ $OSTYPE == "linux" ]] ; then
 elif [[ $OSTYPE == "darwin" ]] ; then
     . ${FSLDIR}/etc/fslconf/fsl.sh
     export HCPPIPEDIR=/Users/neichert/code/NHPPipelines
-    export FREESURFER_HOME=/usr/local/freesurfer-HCP
+    export FREESURFER_HOME=/Applications/freesurfer
     . ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
     export CARET7DIR='/Applications/workbench1.5.0/bin_macosx64'
  export MATLAB_HOME='/Applications/MATLAB_R2022a.app/bin/matlab'
