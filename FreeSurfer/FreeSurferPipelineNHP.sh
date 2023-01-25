@@ -362,6 +362,8 @@ function runFSwhite () {
 
 	# Highres and white stuffs and fine-tune T2w to T1w Reg
 
+	# NE stop here
+
 	log_Msg "High resolution white matter and fine tune T2w to T1w registration"
 	if [[ ! $SPECIES =~ Human ]] ; then
 		# Modified HiresWhite - Takuya Hayashi for bias-correction of T1w, Jan 2017
