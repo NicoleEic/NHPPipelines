@@ -28,11 +28,16 @@ fslmaths "$T1wImage" -abs -add 1 "$mridir"/T1w_hires.nii.gz
 hires="$mridir"/T1w_hires.nii.gz
 
 # Save copies of the "prehires" versions
-cp -p $SubjectDIR/$SubjectID/surf/lh.white.preaparc $SubjectDIR/$SubjectID/surf/lh.white.prehires
+
+# NE fix missing file
+cp $SubjectDIR/$SubjectID/surf/lh.white.preaparc $SubjectDIR/$SubjectID/surf/lh.white
+cp $SubjectDIR/$SubjectID/surf/rh.white.preaparc $SubjectDIR/$SubjectID/surf/rh.white
+
+cp -p $SubjectDIR/$SubjectID/surf/lh.white $SubjectDIR/$SubjectID/surf/lh.white.prehires
 cp -p $SubjectDIR/$SubjectID/surf/lh.curv $SubjectDIR/$SubjectID/surf/lh.curv.prehires
 cp -p $SubjectDIR/$SubjectID/surf/lh.area $SubjectDIR/$SubjectID/surf/lh.area.prehires
 cp -p $SubjectDIR/$SubjectID/label/lh.cortex.label $SubjectDIR/$SubjectID/label/lh.cortex.prehires.label
-cp -p $SubjectDIR/$SubjectID/surf/rh.white.preaparc $SubjectDIR/$SubjectID/surf/rh.white.prehires
+cp -p $SubjectDIR/$SubjectID/surf/rh.white $SubjectDIR/$SubjectID/surf/rh.white.prehires
 cp -p $SubjectDIR/$SubjectID/surf/rh.curv $SubjectDIR/$SubjectID/surf/rh.curv.prehires
 cp -p $SubjectDIR/$SubjectID/surf/rh.area $SubjectDIR/$SubjectID/surf/rh.area.prehires
 cp -p $SubjectDIR/$SubjectID/label/rh.cortex.label $SubjectDIR/$SubjectID/label/rh.cortex.prehires.label
@@ -41,13 +46,13 @@ cp -p $SubjectDIR/$SubjectID/label/rh.cortex.label $SubjectDIR/$SubjectID/label/
 # Note that the convention of tkregister2 is that the resulting $reg is the registration 
 # matrix that maps from the "--targ" space into the "--mov" space.  So, while $reg is named
 # "hires21mm.dat", the matrix actually maps from the 1 mm (FS conformed) space into the hires space).
-tkregister2 --mov "$mridir"/T1w_hires.nii.gz --targ $mridir/orig.mgz --noedit --regheader --reg $reg
+tkregister2_cmdl --mov "$mridir"/T1w_hires.nii.gz --targ $mridir/orig.mgz --noedit --regheader --reg $reg
 
 # map white and pial to hires coords (pial is only for visualization - won't be used later)
 # [Note that Xh.sphere.reg doesn't exist yet, which is the default surface registration 
 # assumed by mri_surf2surf, so use "--surfreg white"].
-mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz --tval white.hires --surfreg white --hemi lh
-mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz --tval white.hires --surfreg white --hemi rh
+mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white.hires --surfreg white --hemi lh
+mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white.hires --surfreg white --hemi rh
 
 cp $SubjectDIR/$SubjectID/surf/lh.white $SubjectDIR/$SubjectID/surf/lh.white.prehires
 cp $SubjectDIR/$SubjectID/surf/rh.white $SubjectDIR/$SubjectID/surf/rh.white.prehires
@@ -118,7 +123,7 @@ else
   cp "$mridir"/transforms/eye.dat "$mridir"/transforms/T2wtoT1w.dat
 fi
  
-  tkregister2 --noedit --reg "$mridir"/transforms/T2wtoT1w.dat --mov "$T2wImage" --targ "$mridir"/T1w_hires.nii.gz --fslregout "$mridir"/transforms/T2wtoT1w.mat
+  tkregister2_cmdl --noedit --reg "$mridir"/transforms/T2wtoT1w.dat --mov "$T2wImage" --targ "$mridir"/T1w_hires.nii.gz --fslregout "$mridir"/transforms/T2wtoT1w.mat
   applywarp --interp=spline -i "$T2wImage" -r "$mridir"/T1w_hires.nii.gz --premat="$mridir"/transforms/T2wtoT1w.mat -o "$mridir"/T2w_hires.nii.gz
   fslmaths "$mridir"/T2w_hires.nii.gz -abs -add 1 "$mridir"/T2w_hires.nii.gz
   fslmaths "$mridir"/T1w_hires.nii.gz -mul "$mridir"/T2w_hires.nii.gz -sqrt "$mridir"/T1wMulT2w_hires.nii.gz
@@ -128,9 +133,9 @@ fi
 #  echo "Verify that "$T2wImage" has not been fine tuned and then remove "$mridir"/transforms/T2wtoT1w.mat"
 #fi
 
-tkregister2 --mov $mridir/orig.mgz --targ "$mridir"/T1w_hires.nii.gz --noedit --regheader --reg $regII
-mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz --tval white --surfreg white --hemi lh
-mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz --tval white --surfreg white --hemi rh
+tkregister2_cmdl --mov $mridir/orig.mgz --targ "$mridir"/T1w_hires.nii.gz --noedit --regheader --reg $regII
+mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white --surfreg white --hemi lh
+mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz  "$mridir"/T1w_hires.nii.gz --tval white --surfreg white --hemi rh
 
 cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.curv.deformed $SubjectDIR/$SubjectID/surf/lh.curv
 cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.area.deformed  $SubjectDIR/$SubjectID/surf/lh.area
