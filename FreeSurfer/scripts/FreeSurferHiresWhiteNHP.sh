@@ -28,14 +28,14 @@ fslmaths "$T1wImage" -abs -add 1 "$mridir"/T1w_hires.nii.gz
 hires="$mridir"/T1w_hires.nii.gz
 
 # Save copies of the "prehires" versions
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.white.preaparc $SubjectDIR/$SubjectID/surf/lh.white.prehires
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.curv $SubjectDIR/$SubjectID/surf/lh.curv.prehires
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.area $SubjectDIR/$SubjectID/surf/lh.area.prehires
-cp --preserve=timestamps $SubjectDIR/$SubjectID/label/lh.cortex.label $SubjectDIR/$SubjectID/label/lh.cortex.prehires.label
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/rh.white.preaparc $SubjectDIR/$SubjectID/surf/rh.white.prehires
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/rh.curv $SubjectDIR/$SubjectID/surf/rh.curv.prehires
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/rh.area $SubjectDIR/$SubjectID/surf/rh.area.prehires
-cp --preserve=timestamps $SubjectDIR/$SubjectID/label/rh.cortex.label $SubjectDIR/$SubjectID/label/rh.cortex.prehires.label
+cp -p $SubjectDIR/$SubjectID/surf/lh.white.preaparc $SubjectDIR/$SubjectID/surf/lh.white.prehires
+cp -p $SubjectDIR/$SubjectID/surf/lh.curv $SubjectDIR/$SubjectID/surf/lh.curv.prehires
+cp -p $SubjectDIR/$SubjectID/surf/lh.area $SubjectDIR/$SubjectID/surf/lh.area.prehires
+cp -p $SubjectDIR/$SubjectID/label/lh.cortex.label $SubjectDIR/$SubjectID/label/lh.cortex.prehires.label
+cp -p $SubjectDIR/$SubjectID/surf/rh.white.preaparc $SubjectDIR/$SubjectID/surf/rh.white.prehires
+cp -p $SubjectDIR/$SubjectID/surf/rh.curv $SubjectDIR/$SubjectID/surf/rh.curv.prehires
+cp -p $SubjectDIR/$SubjectID/surf/rh.area $SubjectDIR/$SubjectID/surf/rh.area.prehires
+cp -p $SubjectDIR/$SubjectID/label/rh.cortex.label $SubjectDIR/$SubjectID/label/rh.cortex.prehires.label
 
 # generate registration between conformed and hires based on headers
 # Note that the convention of tkregister2 is that the resulting $reg is the registration 
