@@ -22,7 +22,7 @@ Subjlist=$2
 #RunMode=$3
 
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
-RunMode=0
+RunMode=3
 
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}
@@ -35,7 +35,7 @@ echo "$@"
 #fi
 
 PRINTCOM=""
-PRINTCOM="echo"
+#PRINTCOM="echo"
 
 ########################################## INPUT
 
@@ -131,6 +131,7 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
     --species="$SPECIES" \
     --runmode="$RunMode" \
     --seed="$Seed" \
+    --intensitycor='FAST'\
     --printcom="$PRINTCOM"
       
   # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...

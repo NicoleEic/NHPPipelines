@@ -258,7 +258,12 @@ function runFSbrainmaskandseg () {
 	# Registration and normalization to GCA
 	log_Msg "Second recon-all steps for registration and normaliztion to GCA"
 
-	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -careginv -rmneck -skull-lta -gca-dir $GCAdir \
+# NE: -gca-dir option does not exists
+# NE: -gca-skull ../../../$GCAdir/RB_all_withskull_2008-03-26.gca fails:
+# 0 singular and 841 ill-conditioned covariance matrices regularized
+# same with -gca ../../../$GCAdir/RB_all_2008-03-26.gca
+	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -careginv -rmneck -skull-lta \
+	-gca RB_all_2008-03-26.gca -gca-dir $GCAdir -gca-skull RB_all_withskull_2008-03-26.gca \
 	-openmp ${num_cores} ${seed_cmd_appendix}
 	cp "$SubjectDIR"/"$SubjectID"/mri/norm.mgz "$SubjectDIR"/"$SubjectID"/mri/norm.orig.mgz 
 
@@ -280,6 +285,8 @@ function runFSaseg () {
 	mri_cc -aseg aseg.auto_noCCseg.mgz -o aseg.auto.mgz -lta "$SubjectDIR"/"$SubjectID"/mri/transforms/cc_up.lta "$SubjectID"
 	cp aseg.auto.mgz aseg+claustrum.mgz
 	cp aseg.auto.mgz aseg.mgz
+	# NE: no idea where else aseg.presurf.mgz is supposed to come from
+	cp aseg.auto.mgz aseg.presurf.mgz
 	cd $DIR
 
 }	
@@ -310,7 +317,7 @@ function runNormalize2 () {
 	fi
 	## paste wm skeleton for Marmoset - TH Aug 2019
 	if [[ $SPECIES =~ Marmoset || $SPECIES =~ Macaque ]] ; then
-		applywarp -i "$GCAdir"/wmskeleton.nii.gz -r ../../T1w_acpc_dc_restore.nii.gz -w \
+		applywarp -i "$HCPPIPEDIR_Templates"/MacaqueRIKEN21/wmskeleton.nii.gz -r ../../T1w_acpc_dc_restore.nii.gz -w \
 		../../../MNINonLinear/xfms/standard2acpc_dc.nii.gz -o wmskeleton.nii.gz --interp=nn
 		"$PipelineScripts"/MakeDimto1mm.sh Marmoset wmskeleton.nii.gz
 		fslmaths wmskeleton_1mm.nii.gz -thr 0.2 -bin -mul 255 wmskeleton_1mm.nii.gz
@@ -505,6 +512,7 @@ elif [ "$RunMode" = "8" ] ; then
 
 fi
 
+echo 'Done FreeSurferPipelineNHP'
 }
 
 main;
