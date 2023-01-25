@@ -12,7 +12,9 @@
 # checked in to a repository.
 *.grad
 
-*nii.gz
-*nii
-*gii
+*.nii.gz
+*.nii
+*.gii
 *.idea*
+*.txt
+*.prj
