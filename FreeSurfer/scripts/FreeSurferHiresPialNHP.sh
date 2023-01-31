@@ -78,7 +78,7 @@ Ratio="$mridir"/T1wDividedByT2w_sqrt.nii.gz
 
 log_Msg "Normalizing T1w_hires and T2w_hires"
 mri_convert "$mridir"/wm.hires.mgz "$mridir"/wm.hires.nii.gz
-fslmaths "$mridir"/wm.hires.nii.gz -thr 110 -uthr 110 "$mridir"/wm.hires.nii.gz 
+fslmaths "$mridir"/wm.hires.nii.gz -thr 110 -uthr 110 "$mridir"/wm.hires.nii.gz
 wmMean=`fslstats "$mridir"/T1w_hires.nii.gz -k "$mridir"/wm.hires.nii.gz -M`
 fslmaths "$mridir"/T1w_hires.nii.gz -div $wmMean -mul 110 "$mridir"/T1w_hires.norm.nii.gz
 mri_convert "$mridir"/T1w_hires.norm.nii.gz "$mridir"/T1w_hires.norm.mgz
@@ -117,8 +117,8 @@ if [ "$T2wFlag" != "NONE" ] ; then
 	mris_make_surfaces $NSIGMA_ABOVE -aseg aseg.hires -filled filled.hires -wm wm.hires -mgz -sdir $SubjectDIR -orig white.deformed -nowhite -orig_white white.deformed -orig_pial pial $T2wFlag $mridir/T2w_hires.norm -T1 $T1wHires -output .T2 $SubjectID lh
 	mris_make_surfaces $NSIGMA_ABOVE -aseg aseg.hires -filled filled.hires -wm wm.hires -mgz -sdir $SubjectDIR -orig white.deformed -nowhite -orig_white white.deformed -orig_pial pial $T2wFlag $mridir/T2w_hires.norm -T1 $T1wHires -output .T2 $SubjectID rh
 	
-	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/lh.pial --hemi lh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/rh.pial --hemi rh
 
 	# Second round
 	log_Msg "Creating T1w_hires.graynorm"
@@ -130,22 +130,22 @@ if [ "$T2wFlag" != "NONE" ] ; then
 	echo "0 0 1 ""$MatrixZ" >> $mridir/c_ras.mat
 	echo "0 0 0 1" >> $mridir/c_ras.mat
 
-	mris_convert "$surfdir"/lh.white "$surfdir"/lh.white.surf.gii
+	mris_convert --cras_correction "$surfdir"/lh.white "$surfdir"/lh.white.surf.gii
 	${CARET7DIR}/wb_command -set-structure "$surfdir"/lh.white.surf.gii CORTEX_LEFT 
 	${CARET7DIR}/wb_command -surface-apply-affine "$surfdir"/lh.white.surf.gii $mridir/c_ras.mat "$surfdir"/lh.white.surf.gii
 	${CARET7DIR}/wb_command -create-signed-distance-volume "$surfdir"/lh.white.surf.gii "$mridir"/T1w_hires.nii.gz "$surfdir"/lh.white.nii.gz
 
-	mris_convert "$surfdir"/lh.pial "$surfdir"/lh.pial.surf.gii
+	mris_convert --cras_correction "$surfdir"/lh.pial "$surfdir"/lh.pial.surf.gii
 	${CARET7DIR}/wb_command -set-structure "$surfdir"/lh.pial.surf.gii CORTEX_LEFT 
 	${CARET7DIR}/wb_command -surface-apply-affine "$surfdir"/lh.pial.surf.gii $mridir/c_ras.mat "$surfdir"/lh.pial.surf.gii
 	${CARET7DIR}/wb_command -create-signed-distance-volume "$surfdir"/lh.pial.surf.gii "$mridir"/T1w_hires.nii.gz "$surfdir"/lh.pial.nii.gz
 
-	mris_convert "$surfdir"/rh.white "$surfdir"/rh.white.surf.gii
+	mris_convert --cras_correction "$surfdir"/rh.white "$surfdir"/rh.white.surf.gii
 	${CARET7DIR}/wb_command -set-structure "$surfdir"/rh.white.surf.gii CORTEX_RIGHT 
 	${CARET7DIR}/wb_command -surface-apply-affine "$surfdir"/rh.white.surf.gii $mridir/c_ras.mat "$surfdir"/rh.white.surf.gii
 	${CARET7DIR}/wb_command -create-signed-distance-volume "$surfdir"/rh.white.surf.gii "$mridir"/T1w_hires.nii.gz "$surfdir"/rh.white.nii.gz
 
-	mris_convert "$surfdir"/rh.pial "$surfdir"/rh.pial.surf.gii
+	mris_convert --cras_correction "$surfdir"/rh.pial "$surfdir"/rh.pial.surf.gii
 	${CARET7DIR}/wb_command -set-structure "$surfdir"/rh.pial.surf.gii CORTEX_RIGHT 
 	${CARET7DIR}/wb_command -surface-apply-affine "$surfdir"/rh.pial.surf.gii $mridir/c_ras.mat "$surfdir"/rh.pial.surf.gii
 	${CARET7DIR}/wb_command -create-signed-distance-volume "$surfdir"/rh.pial.surf.gii "$mridir"/T1w_hires.nii.gz "$surfdir"/rh.pial.nii.gz
@@ -209,8 +209,8 @@ fi
 	
 	# Marmoset data does not work well for second round.
 	if [ "$SPECIES" != Marmoset ] ; then
-		mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-		mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+		mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/lh.pial --hemi lh
+		mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/rh.pial --hemi rh
 
 		cp $SubjectDIR/$SubjectID/surf/lh.thickness $SubjectDIR/$SubjectID/surf/lh.thickness.preT2
 		cp $SubjectDIR/$SubjectID/surf/rh.thickness $SubjectDIR/$SubjectID/surf/rh.thickness.preT2
@@ -224,8 +224,8 @@ fi
 		cp $SubjectDIR/$SubjectID/surf/lh.curv.pial.T2.two $SubjectDIR/$SubjectID/surf/lh.curv.pial
 		cp $SubjectDIR/$SubjectID/surf/rh.curv.pial.T2.two $SubjectDIR/$SubjectID/surf/rh.curv.pial
 	else
-		mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-		mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+		mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/lh.pial --hemi lh
+		mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/rh.pial --hemi rh
 
 		cp $SubjectDIR/$SubjectID/surf/lh.thickness $SubjectDIR/$SubjectID/surf/lh.thickness.preT2
 		cp $SubjectDIR/$SubjectID/surf/rh.thickness $SubjectDIR/$SubjectID/surf/rh.thickness.preT2
@@ -243,8 +243,8 @@ fi
 
 else
 
-	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi lh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi rh
 
 	cp $SubjectDIR/$SubjectID/surf/lh.thickness.preT2 $SubjectDIR/$SubjectID/surf/lh.thickness
 	cp $SubjectDIR/$SubjectID/surf/rh.thickness.preT2 $SubjectDIR/$SubjectID/surf/rh.thickness

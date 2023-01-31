@@ -18,9 +18,9 @@ if [[ $OSTYPE == "linux" ]] ; then
 elif [[ $OSTYPE == "darwin" ]] ; then
     . ${FSLDIR}/etc/fslconf/fsl.sh
     export HCPPIPEDIR=/Users/neichert/code/NHPPipelines
-    export FREESURFER_HOME=/Applications/freesurfer
+    export FREESURFER_HOME=/Applications/freesurfer/7.3.2
     . ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
-    export CARET7DIR='/Applications/workbench1.5.0/bin_macosx64'
+    export CARET7DIR='/Applications/workbench/bin_macosx64/'
  export MATLAB_HOME='/Applications/MATLAB_R2022a.app/bin/matlab'
 fi
 

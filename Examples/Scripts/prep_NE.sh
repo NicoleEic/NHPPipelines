@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+#  sh /Users/neichert/code/NHPPipelines/Examples/Scripts/prep_NE.sh
+
+
 if [[ $OSTYPE == "linux" ]] ; then
   origdir=/vols/Scratch/neichert/site-ucdavis
   StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives
@@ -18,7 +21,7 @@ fi
 #source $ScriptsDir/SetUpHCPPipelineNHP.sh
 
 Subjlist="sub-032128" #CHANGE!!
-Task="FREE" # "INIT" "PRE" "FREE" "POST" "CLEAN"
+Task="POST" # "INIT" "PRE" "FREE" "POST" "CLEAN"
 
 # run the "RENAME" task
 if [[ $Task = "INIT" ]] ; then
@@ -50,7 +53,12 @@ fi
 #fi
 
 
-mri_em_register -rusage \
-/Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/touch/rusage.mri_em_register.dat \
--uns 3 -mask brainmask.mgz nu.mgz \
-/Users/neichert/code/NHPPipelines/global/templates/MacaqueYerkes19/RB_all_2008-03-26.gca transforms/talairach.lta
+#fslmaths /Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/T1w/T1w_acpc_dc_restore_brain.nii.gz \
+#-div \
+#/Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/T1w/T2w_acpc_dc_restore_brain.nii.gz \
+#/Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/test.nii.gz
+
+#wb_command -volume-to-surface-mapping /Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/test.nii.gz \
+#/Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/T1w/Native/sub-032128.L.midthickness.native.surf.gii \
+#/Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/test.func.gii -myelin-style \
+
