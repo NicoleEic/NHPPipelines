@@ -30,7 +30,7 @@ PRINTCOM=""
 
 
 if [[ $OSTYPE == "linux" ]] ; then
-  RUN="${FSLDIR}/bin/fsl_sub ${QUEUE}"
+  RUN="${FSLDIR}/bin/fsl_sub -N PRE ${QUEUE}"
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''
 fi
@@ -154,38 +154,38 @@ for Subject in $Subjlist ; do
       --bfsigma="$BiasFieldSmoothingSigma" \
       --printcom=$PRINTCOM
 
-  # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
+  # # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
+  #
+  # echo "set -- --path=${StudyFolder} \
+  #     --subject=${Subject} \
+  #     --t1=${T1wInputImages} \
+  #     --t2=${T2wInputImages} \
+  #     --t1template=${T1wTemplate} \
+  #     --t1templatebrain=${T1wTemplateBrain} \
+  #     --t1template2mm=${T1wTemplate2mm} \
+  #     --t2template=${T2wTemplate} \
+  #     --t2templatebrain=${T2wTemplateBrain} \
+  #     --t2template2mm=${T2wTemplate2mm} \
+  #     --templatemask=${TemplateMask} \
+  #     --template2mmmask=${Template2mmMask} \
+  #     --brainsize=${BrainSize} \
+  #     --fnirtconfig=${FNIRTConfig} \
+  #     --fmapmag=${MagnitudeInputName} \
+  #     --fmapphase=${PhaseInputName} \
+  #     --echodiff=${TE} \
+  #     --SEPhaseNeg=${SpinEchoPhaseEncodeNegative} \
+  #     --SEPhasePos=${SpinEchoPhaseEncodePositive} \
+  #     --echospacing=${DwellTime} \
+  #     --seunwarpdir=${SEUnwarpDir} \
+  #     --t1samplespacing=${T1wSampleSpacing} \
+  #     --t2samplespacing=${T2wSampleSpacing} \
+  #     --unwarpdir=${UnwarpDir} \
+  #     --gdcoeffs=${GradientDistortionCoeffs} \
+  #     --avgrdcmethod=${AvgrdcSTRING} \
+  #     --topupconfig=${TopupConfig} \
+  #     --bfsigma=${BiasFieldSmoothingSigma} \
+  #     --printcom=${PRINTCOM}"
 
-  echo "set -- --path=${StudyFolder} \
-      --subject=${Subject} \
-      --t1=${T1wInputImages} \
-      --t2=${T2wInputImages} \
-      --t1template=${T1wTemplate} \
-      --t1templatebrain=${T1wTemplateBrain} \
-      --t1template2mm=${T1wTemplate2mm} \
-      --t2template=${T2wTemplate} \
-      --t2templatebrain=${T2wTemplateBrain} \
-      --t2template2mm=${T2wTemplate2mm} \
-      --templatemask=${TemplateMask} \
-      --template2mmmask=${Template2mmMask} \
-      --brainsize=${BrainSize} \
-      --fnirtconfig=${FNIRTConfig} \
-      --fmapmag=${MagnitudeInputName} \
-      --fmapphase=${PhaseInputName} \
-      --echodiff=${TE} \
-      --SEPhaseNeg=${SpinEchoPhaseEncodeNegative} \
-      --SEPhasePos=${SpinEchoPhaseEncodePositive} \
-      --echospacing=${DwellTime} \
-      --seunwarpdir=${SEUnwarpDir} \
-      --t1samplespacing=${T1wSampleSpacing} \
-      --t2samplespacing=${T2wSampleSpacing} \
-      --unwarpdir=${UnwarpDir} \
-      --gdcoeffs=${GradientDistortionCoeffs} \
-      --avgrdcmethod=${AvgrdcSTRING} \
-      --topupconfig=${TopupConfig} \
-      --bfsigma=${BiasFieldSmoothingSigma} \
-      --printcom=${PRINTCOM}"
-
-  echo ". ${EnvironmentScript}"
+#  echo ". ${EnvironmentScript}"
 
 done

@@ -5,8 +5,8 @@ if [[ $OSTYPE == "linux" ]] ; then
   origdir=/vols/Scratch/neichert/site-ucdavis
   StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives
   ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
-  RUN='fsl_sub -q veryshort.q sh'
-  RUN=''
+  RUN='fsl_sub -q short.q -N INIT sh'
+  #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   origdir=/Users/neichert/Downloads/site-ucdavis
   StudyFolder=/Users/neichert/Downloads/site-ucdavis/derivatives
@@ -18,7 +18,7 @@ fi
 #source $ScriptsDir/SetUpHCPPipelineNHP.sh
 
 Subjlist="sub-032128" #CHANGE!!
-Task="FREE" # "INIT" "PRE" "FREE" "POST" "CLEAN"
+Task="PRE" # "INIT" "PRE" "FREE" "POST" "CLEAN"
 
 # run the "RENAME" task
 if [[ $Task = "INIT" ]] ; then
@@ -26,6 +26,8 @@ if [[ $Task = "INIT" ]] ; then
     ${RUN} $ScriptsDir/PrePreFreeSurfer_NE.sh $origdir $Subject
   done
 fi
+# check the output of INIT by inspecting. It doesn't need to be perfect
+# $StudyFolder/$Subject/RawData/${Subject}_ses-001_run-1_T2w_SPC1_brain.nii.gz
 
 ## run the "PRE-FREESURFER" task
 if [[ $Task = "PRE" ]] ; then
@@ -48,9 +50,3 @@ fi
 #  --StudyFolder="$StudyFolder" \
 #  --SubjList="$Subjlist"
 #fi
-
-
-mri_em_register -rusage \
-/Users/neichert/Downloads/site-ucdavis/derivatives/sub-032128/touch/rusage.mri_em_register.dat \
--uns 3 -mask brainmask.mgz nu.mgz \
-/Users/neichert/code/NHPPipelines/global/templates/MacaqueYerkes19/RB_all_2008-03-26.gca transforms/talairach.lta
