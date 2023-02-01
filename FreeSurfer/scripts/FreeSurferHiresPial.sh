@@ -143,8 +143,8 @@ if [ "$T2wFlag" != "NONE" ] ; then
 	mris_make_surfaces $MAXTHICKNESS $NSIGMA_ABOVE $PSIGMA $PA -aseg aseg.hires.pial -filled filled.hires -wm wm.hires -mgz -sdir $SubjectDIR -orig white.deformed -nowhite -orig_white white.deformed -orig_pial pial $T2wFlag $mridir/T2w_hires.norm -T1 $T1wHires -output .T2 $SubjectID lh
 	mris_make_surfaces $MAXTHICKNESS $NSIGMA_ABOVE $PSIGMA $PA -aseg aseg.hires.pial -filled filled.hires -wm wm.hires -mgz -sdir $SubjectDIR -orig white.deformed -nowhite -orig_white white.deformed -orig_pial pial $T2wFlag $mridir/T2w_hires.norm -T1 $T1wHires -output .T2 $SubjectID rh
 	
-	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi lh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.T2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi rh
 
 	# Second round
 	log_Msg "Creating T1w_hires.graynorm"
@@ -234,8 +234,8 @@ if [ "$T2wFlag" != "NONE" ] ; then
 	# Added $MAXTHICKNESS $NSIGMA_ABOVE $PSIGMA $PA for fullly inflate pial - TH Oct 2019
 	mris_make_surfaces $MAXTHICKNESS $NSIGMA_ABOVE $PSIGMA $PA -aseg aseg.hires.pial -filled filled.hires -wm wm.hires -mgz -sdir $SubjectDIR -orig white.deformed -nowhite -orig_white white.deformed -orig_pial pial $T2wFlag $mridir/T2w_hires.norm -T1 $T1wHires -output .T2.two $SubjectID lh
 	mris_make_surfaces $MAXTHICKNESS $NSIGMA_ABOVE $PSIGMA $PA -aseg aseg.hires.pial -filled filled.hires -wm wm.hires -mgz -sdir $SubjectDIR -orig white.deformed -nowhite -orig_white white.deformed -orig_pial pial $T2wFlag $mridir/T2w_hires.norm -T1 $T1wHires -output .T2.two $SubjectID rh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi lh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.T2.two --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi rh
 
 	cp $SubjectDIR/$SubjectID/surf/lh.thickness $SubjectDIR/$SubjectID/surf/lh.thickness.preT2
 	cp $SubjectDIR/$SubjectID/surf/rh.thickness $SubjectDIR/$SubjectID/surf/rh.thickness.preT2
@@ -251,8 +251,8 @@ if [ "$T2wFlag" != "NONE" ] ; then
 
 else
 
-	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi lh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz --tval pial --hemi rh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi lh
+	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval pial --hemi rh
 
 fi
 

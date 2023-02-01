@@ -258,11 +258,7 @@ function runFSbrainmaskandseg () {
 	# Registration and normalization to GCA
 	log_Msg "Second recon-all steps for registration and normaliztion to GCA"
 
-# NE: -gca-dir option does not exists
-# NE: -gca-skull ../../../$GCAdir/RB_all_withskull_2008-03-26.gca fails:
-# 0 singular and 841 ill-conditioned covariance matrices regularized
-# same with -gca ../../../$GCAdir/RB_all_2008-03-26.gca
-	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -careginv -rmneck -skull-lta \
+	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -rmneck -skull-lta \
 	-gca RB_all_2008-03-26.gca -gca-dir $GCAdir -gca-skull RB_all_withskull_2008-03-26.gca \
 	-openmp ${num_cores} ${seed_cmd_appendix}
 	cp "$SubjectDIR"/"$SubjectID"/mri/norm.mgz "$SubjectDIR"/"$SubjectID"/mri/norm.orig.mgz 
@@ -342,6 +338,8 @@ function runNormalize2 () {
 	mri_convert -ns 1 -odt uchar wm.nii.gz wm.mgz  # save in 8-bit
 	cd $DIR
 
+	echo 'Finished with Fourth step'
+
 }
 
 function runFSwhite () {
@@ -357,18 +355,29 @@ function runFSwhite () {
 	cd $DIR
 
 	log_Msg "Fifth recon-all steps for white"
-	recon-all -subjid $SubjectID -sd $SubjectDIR -fill -tessellate -smooth1 -inflate1 -qsphere -fix -white \
+  # NE: -white step fails. mris_place_surface needs --rip-bg-no-annot option
+  # NE: need to add -autodetgwstats so that /surf/autodet.gw.stats.lh.dat is created
+	recon-all -subjid $SubjectID -sd $SubjectDIR -fill -tessellate -smooth1 -inflate1 -qsphere -fix -autodetgwstats \
 	-openmp ${num_cores} ${seed_cmd_appendix}
 
-	# Highres and white stuffs and fine-tune T2w to T1w Reg
+  # I think this is what the -white option was supposed to do
+	cd "$SubjectDIR"/"$SubjectID"/mri
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --wm wm.mgz --threads 1 --invol brain.finalsurfs.mgz --lh --i ../surf/lh.orig --o ../surf/lh.white.preaparc --white --nsmooth 5 --no-rip-midline --no-rip-bg --no-rip-wmsa --no-rip-freeze --no-rip-lesion
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --wm wm.mgz --threads 1 --invol brain.finalsurfs.mgz --rh --i ../surf/rh.orig --o ../surf/rh.white.preaparc --white --nsmooth 5 --no-rip-midline --no-rip-bg --no-rip-wmsa --no-rip-freeze --no-rip-lesion
 
-	# NE stop here
+  mris_make_surfaces -aseg ../mri/aseg.presurf -whiteonly -noaparc -mgz -T1 brain.finalsurfs $SubjectID lh
+  mris_make_surfaces -aseg ../mri/aseg.presurf -whiteonly -noaparc -mgz -T1 brain.finalsurfs $SubjectID rh
+
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --lh --i ../surf/lh.white.preaparc --o ../surf/lh.white --white --nsmooth 0 --rip-label ../label/lh.cortex.label --rip-bg --rip-surf ../surf/lh.white.preaparc --rip-bg-no-annot
+  mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --rh --i ../surf/rh.white.preaparc --o ../surf/rh.white --white --nsmooth 0 --rip-label ../label/rh.cortex.label --rip-bg --rip-surf ../surf/rh.white.preaparc --rip-bg-no-annot
+
+	# Highres and white stuffs and fine-tune T2w to T1w Reg
 
 	log_Msg "High resolution white matter and fine tune T2w to T1w registration"
 	if [[ ! $SPECIES =~ Human ]] ; then
 		# Modified HiresWhite - Takuya Hayashi for bias-correction of T1w, Jan 2017
 		"$PipelineScripts"/FreeSurferHiresWhiteNHP.sh "$SubjectID" "$SubjectDIR" "$T1wImageFile"_1mm.nii.gz \
-		"$T2wImageFile"_1mm.nii.gz $SPECIES 
+		"$T2wImageFile"_1mm.nii.gz $SPECIES
 	else
 		"$PipelineScripts"/FreeSurferHiresWhite.sh "$SubjectID" "$SubjectDIR" "$T1wImage" "$T2wImage"
 	fi
@@ -512,6 +521,9 @@ elif [ "$RunMode" = "8" ] ; then
 
 	runFSfinish;
 
+elif [ "$RunMode" = "NE" ] ; then
+  echo 'run NE default step'
+  runFSfinish;
 fi
 
 echo 'Done FreeSurferPipelineNHP'

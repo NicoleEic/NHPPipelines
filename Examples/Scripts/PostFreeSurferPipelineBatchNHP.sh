@@ -54,21 +54,21 @@ for Subject in $Subjlist ; do
 #      --mcsigma="$CorrectionSigma" \
 
   # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
-  
-   echo "set -- --path="$StudyFolder" \
-      --subject="$Subject" \
-      --surfatlasdir="$SurfaceAtlasDIR" \
-      --grayordinatesdir="$GrayordinatesSpaceDIR" \
-      --grayordinatesres="$GrayordinatesResolution" \
-      --hiresmesh="$HighResMesh" \
-      --lowresmesh="$LowResMesh" \
-      --subcortgraylabels="$SubcorticalGrayLabels" \
-      --freesurferlabels="$FreeSurferLabels" \
-      --refmyelinmaps="$ReferenceMyelinMaps" \
-      --regname="$RegName" \
-      --mcsigma="$CorrectionSigma" \
-      --printcom=$PRINTCOM"
-      
+#
+#   echo "set -- --path="$StudyFolder" \
+#      --subject="$Subject" \
+#      --surfatlasdir="$SurfaceAtlasDIR" \
+#      --grayordinatesdir="$GrayordinatesSpaceDIR" \
+#      --grayordinatesres="$GrayordinatesResolution" \
+#      --hiresmesh="$HighResMesh" \
+#      --lowresmesh="$LowResMesh" \
+#      --subcortgraylabels="$SubcorticalGrayLabels" \
+#      --freesurferlabels="$FreeSurferLabels" \
+#      --refmyelinmaps="$ReferenceMyelinMaps" \
+#      --regname="$RegName" \
+#      --mcsigma="$CorrectionSigma" \
+#      --printcom=$PRINTCOM"
+#
    echo ". ${EnvironmentScript}"
 done
 

@@ -32,18 +32,19 @@ mri_convert "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.nii.gz "$SubjectDIR"
 mri_convert "$SubjectDIR"/"$SubjectID"/mri/orig.nii.gz "$SubjectDIR"/"$SubjectID"/mri/orig.mgz
 
 # for hemisphere
-mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz --tval white_temp --hemi lh
+echo 'surf2surf'
+mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz "$T1wImage" --tval "$SubjectDIR"/"$SubjectID"_1mm/surf/lh.white_temp --hemi lh
 mv "$SubjectDIR"/"$SubjectID"_1mm/surf/lh.white_temp "$SubjectDIR"/"$SubjectID"/surf/lh.white
-mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz --tval white_temp --hemi rh
+mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz "$T1wImage" --tval "$SubjectDIR"/"$SubjectID"_1mm/surf/rh.white_temp --hemi rh
 mv "$SubjectDIR"/"$SubjectID"_1mm/surf/rh.white_temp "$SubjectDIR"/"$SubjectID"/surf/rh.white
-mri_surf2surf --s "$SubjectID"_1mm --sval-xyz pial --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz --tval pial_temp --hemi lh
+mri_surf2surf --s "$SubjectID"_1mm --sval-xyz pial --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz "$T1wImage" --tval "$SubjectDIR"/"$SubjectID"_1mm/surf/lh.pial_temp --hemi lh
 mv "$SubjectDIR"/"$SubjectID"_1mm/surf/lh.pial_temp "$SubjectDIR"/"$SubjectID"/surf/lh.pial
-mri_surf2surf --s "$SubjectID"_1mm --sval-xyz pial --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz --tval pial_temp --hemi rh
+mri_surf2surf --s "$SubjectID"_1mm --sval-xyz pial --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz "$T1wImage" --tval "$SubjectDIR"/"$SubjectID"_1mm/surf/rh.pial_temp --hemi rh
 mv "$SubjectDIR"/"$SubjectID"_1mm/surf/rh.pial_temp "$SubjectDIR"/"$SubjectID"/surf/rh.pial
 
-mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white.deformed --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz --tval white.deformed_temp --hemi lh
+mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white.deformed --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz "$T1wImage" --tval "$SubjectDIR"/"$SubjectID"_1mm/surf/lh.white.deformed_temp --hemi lh
 mv "$SubjectDIR"/"$SubjectID"_1mm/surf/lh.white.deformed_temp "$SubjectDIR"/"$SubjectID"/surf/lh.white.deformed
-mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white.deformed --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz --tval white.deformed_temp --hemi rh
+mri_surf2surf --s "$SubjectID"_1mm --sval-xyz white.deformed --reg-inv "$RescaleVolumeTransform".dat "$SubjectDIR"/"$SubjectID"/mri/brain.finalsurfs.mgz --tval-xyz "$T1wImage" --tval "$SubjectDIR"/"$SubjectID"_1mm/surf/rh.white.deformed_temp --hemi rh
 mv "$SubjectDIR"/"$SubjectID"_1mm/surf/rh.white.deformed_temp "$SubjectDIR"/"$SubjectID"/surf/rh.white.deformed
 
 
@@ -85,13 +86,18 @@ for hemisphere in l r ; do
 done
 surf="${SubjectDIR}/${SubjectID}/surf"
 hemi="lh"
-matlab -nojvm -nosplash <<M_PROG
+
+/Applications/MATLAB_R2022a.app/bin/matlab -nojvm -nosplash << EOF
 addpath $HCPPIPEDIR/global/matlab
-addpath('/usr/local/NHPHCP/matlab')
+addpath $FREESURFER_HOME/matlab
 corticalthickness('${surf}','${hemi}');
-M_PROG
+EOF
+
 hemi="rh"
-matlab -nojvm -nosplash <<M_PROG
+/Applications/MATLAB_R2022a.app/bin/matlab -nojvm -nosplash << EOF
 addpath $HCPPIPEDIR/global/matlab
+addpath $FREESURFER_HOME/matlab
 corticalthickness('${surf}','${hemi}');
-M_PROG
+EOF
+
+echo 'End RescaleVolumeAndSurface'

@@ -22,7 +22,7 @@ Subjlist=$2
 #RunMode=$3
 
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
-RunMode=5
+RunMode='NE'
 
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}
@@ -109,7 +109,7 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
    		ControlPoints="NONE"
    		AsegEdit="NONE"
 	else
-		echo "WARNING: cannot find ${SubjectDIR}/${Subject}/mri/wm.edit.mgz. About to run FSwhite"; 
+		echo "WARNING: cannot find ${SubjectDIR}/${Subject}/mri/wm.edit.mgz. About to run FSwhite";
   	fi
   fi
   Seed="1234"
@@ -135,24 +135,24 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
     --printcom="$PRINTCOM"
       
   # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
-
-  echo "set -- --subject="$Subject" \
-      --subjectDIR="$SubjectDIR" \
-      --t1="$T1wImage" \
-      --t1brain="$T1wImageBrain" \
-      --t2="$T2wImage" \
-      --fslinear="$FSLinearTransform" \
-      --gcadir="$GCAdir" \
-      --rescaletrans="$RescaleVolumeTransform" \
-     --asegedit="$AsegEdit" \
-      --controlpoints="$ControlPoints" \
-      --wmedit="$WmEdit" \
-      --t2wflag="$T2wFlag" \
-      --species="$SPECIES" \
-      --runmode="$RunMode" \
-      --printcom=$PRINTCOM "
-
-  echo ". ${EnvironmentScript}"
+#
+#  echo "set -- --subject="$Subject" \
+#      --subjectDIR="$SubjectDIR" \
+#      --t1="$T1wImage" \
+#      --t1brain="$T1wImageBrain" \
+#      --t2="$T2wImage" \
+#      --fslinear="$FSLinearTransform" \
+#      --gcadir="$GCAdir" \
+#      --rescaletrans="$RescaleVolumeTransform" \
+#     --asegedit="$AsegEdit" \
+#      --controlpoints="$ControlPoints" \
+#      --wmedit="$WmEdit" \
+#      --t2wflag="$T2wFlag" \
+#      --species="$SPECIES" \
+#      --runmode="$RunMode" \
+#      --printcom=$PRINTCOM "
+#
+#  echo ". ${EnvironmentScript}"
 
 done
 

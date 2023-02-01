@@ -36,8 +36,8 @@ tkregister2 --mov "$mridir"/T1w_hires.nii.gz --targ $mridir/orig.mgz --noedit --
 # map white to hires coords
 # [Note that Xh.sphere.reg doesn't exist yet, which is the default surface registration 
 # assumed by mri_surf2surf, so use "--surfreg white"].
-mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz --tval white.hires --surfreg white --hemi lh
-mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz --tval white.hires --surfreg white --hemi rh
+mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white.hires --surfreg white --hemi lh
+mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white.hires --surfreg white --hemi rh
 
 # make sure to create the file control.hires.dat in the scripts dir with at least a few points
 # in the wm for the mri_normalize call that comes next
@@ -103,8 +103,8 @@ fi
 
 # Create version of white surfaces back in the 1mm (FS conformed) space
 tkregister2 --mov $mridir/orig.mgz --targ "$mridir"/T1w_hires.nii.gz --noedit --regheader --reg $regII
-mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz --tval white --surfreg white --hemi lh
-mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz --tval white --surfreg white --hemi rh
+mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white --surfreg white --hemi lh
+mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white --surfreg white --hemi rh
 
 # Copy the ".deformed" outputs of previous mris_make_surfaces to their default FS file names
 cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.curv.deformed $SubjectDIR/$SubjectID/surf/lh.curv

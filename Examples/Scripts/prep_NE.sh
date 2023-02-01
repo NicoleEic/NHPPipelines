@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+#  sh /Users/neichert/code/NHPPipelines/Examples/Scripts/prep_NE.sh
+
 if [[ $OSTYPE == "linux" ]] ; then
   origdir=/vols/Scratch/neichert/site-ucdavis
   StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives

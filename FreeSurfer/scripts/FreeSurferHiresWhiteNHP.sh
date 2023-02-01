@@ -30,8 +30,8 @@ hires="$mridir"/T1w_hires.nii.gz
 # Save copies of the "prehires" versions
 
 # NE fix missing file
-cp $SubjectDIR/$SubjectID/surf/lh.white.preaparc $SubjectDIR/$SubjectID/surf/lh.white
-cp $SubjectDIR/$SubjectID/surf/rh.white.preaparc $SubjectDIR/$SubjectID/surf/rh.white
+#cp $SubjectDIR/$SubjectID/surf/lh.white.preaparc $SubjectDIR/$SubjectID/surf/lh.white
+#cp $SubjectDIR/$SubjectID/surf/rh.white.preaparc $SubjectDIR/$SubjectID/surf/rh.white
 
 cp -p $SubjectDIR/$SubjectID/surf/lh.white $SubjectDIR/$SubjectID/surf/lh.white.prehires
 cp -p $SubjectDIR/$SubjectID/surf/lh.curv $SubjectDIR/$SubjectID/surf/lh.curv.prehires
@@ -51,8 +51,8 @@ tkregister2_cmdl --mov "$mridir"/T1w_hires.nii.gz --targ $mridir/orig.mgz --noed
 # map white and pial to hires coords (pial is only for visualization - won't be used later)
 # [Note that Xh.sphere.reg doesn't exist yet, which is the default surface registration 
 # assumed by mri_surf2surf, so use "--surfreg white"].
-mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white.hires --surfreg white --hemi lh
-mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white.hires --surfreg white --hemi rh
+mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval  $SubjectDIR/$SubjectID/surf/lh.white.hires --surfreg white --hemi lh
+mri_surf2surf --s $SubjectID --sval-xyz white --reg $reg "$mridir"/T1w_hires.nii.gz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval  $SubjectDIR/$SubjectID/surf/rh.white.hires --surfreg white --hemi rh
 
 cp $SubjectDIR/$SubjectID/surf/lh.white $SubjectDIR/$SubjectID/surf/lh.white.prehires
 cp $SubjectDIR/$SubjectID/surf/rh.white $SubjectDIR/$SubjectID/surf/rh.white.prehires
@@ -93,8 +93,10 @@ else
 fi
 
 #Check if FreeSurfer is version 5.2.0 or not.  If it is not, use new -first_wm_peak mris_make_surfaces flag
+# NE flag not present in new version
 if [ -z `cat ${FREESURFER_HOME}/build-stamp.txt | grep v5.2.0` ] ; then
-	FIRSTWMPEAK="-first_wm_peak"
+	#FIRSTWMPEAK="-first_wm_peak"
+	FIRSTWMPEAK=""
 else
 	FIRSTWMPEAK=""
 fi
@@ -117,6 +119,13 @@ echo "round" >> "$mridir"/transforms/eye.dat
 #if [ ! -e "$mridir"/transforms/T2wtoT1w.mat ] ; then
 if [ "$SPECIES" != "Marmoset" ] ; then   
   # bbreguster does not work well for marmoset data even having good initialization and correct white surface for marmoset. - Takuya Hayashi Dec 2017
+
+  # NE fix
+  #bbregister -thickness filename can't be modified. copy over
+  cp "$mridir"/../surf/lh.thickness.deformed "$mridir"/../surf/lh.thickness
+  cp "$mridir"/../surf/rh.thickness.deformed "$mridir"/../surf/rh.thickness
+  # end fix
+
   bbregister --s "$SubjectID" --mov "$T2wImage" --surf white.deformed --init-reg "$mridir"/transforms/eye.dat --t2 \
   --reg "$mridir"/transforms/T2wtoT1w.dat --o "$mridir"/T2w_hires.nii.gz
 else
@@ -134,15 +143,15 @@ fi
 #fi
 
 tkregister2_cmdl --mov $mridir/orig.mgz --targ "$mridir"/T1w_hires.nii.gz --noedit --regheader --reg $regII
-mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval white --surfreg white --hemi lh
-mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz  "$mridir"/T1w_hires.nii.gz --tval white --surfreg white --hemi rh
+mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval  $SubjectDIR/$SubjectID/surf/lh.white --surfreg white --hemi lh
+mri_surf2surf --s $SubjectID --sval-xyz white.deformed --reg $regII $mridir/orig.mgz --tval-xyz  "$mridir"/T1w_hires.nii.gz --tval  $SubjectDIR/$SubjectID/surf/rh.white --surfreg white --hemi rh
 
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.curv.deformed $SubjectDIR/$SubjectID/surf/lh.curv
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/lh.area.deformed  $SubjectDIR/$SubjectID/surf/lh.area
-cp --preserve=timestamps $SubjectDIR/$SubjectID/label/lh.cortex.deformed.label $SubjectDIR/$SubjectID/label/lh.cortex.label
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/rh.curv.deformed $SubjectDIR/$SubjectID/surf/rh.curv
-cp --preserve=timestamps $SubjectDIR/$SubjectID/surf/rh.area.deformed  $SubjectDIR/$SubjectID/surf/rh.area
-cp --preserve=timestamps $SubjectDIR/$SubjectID/label/rh.cortex.deformed.label $SubjectDIR/$SubjectID/label/rh.cortex.label
+cp -p $SubjectDIR/$SubjectID/surf/lh.curv.deformed $SubjectDIR/$SubjectID/surf/lh.curv
+cp -p $SubjectDIR/$SubjectID/surf/lh.area.deformed  $SubjectDIR/$SubjectID/surf/lh.area
+cp -p $SubjectDIR/$SubjectID/label/lh.cortex.deformed.label $SubjectDIR/$SubjectID/label/lh.cortex.label
+cp -p $SubjectDIR/$SubjectID/surf/rh.curv.deformed $SubjectDIR/$SubjectID/surf/rh.curv
+cp -p $SubjectDIR/$SubjectID/surf/rh.area.deformed  $SubjectDIR/$SubjectID/surf/rh.area
+cp -p $SubjectDIR/$SubjectID/label/rh.cortex.deformed.label $SubjectDIR/$SubjectID/label/rh.cortex.label
 
 echo -e "\n END: FreeSurferHighResWhite"
 
