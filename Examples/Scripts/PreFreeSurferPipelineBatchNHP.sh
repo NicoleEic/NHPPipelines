@@ -31,6 +31,7 @@ PRINTCOM=""
 
 if [[ $OSTYPE == "linux" ]] ; then
   RUN="${FSLDIR}/bin/fsl_sub -N PRE ${QUEUE}"
+  #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''
 fi
@@ -130,7 +131,7 @@ for Subject in $Subjlist ; do
       --t2="$T2wInputImages" \
       --t1template="$T1wTemplate" \
       --t1templatebrain="$T1wTemplateBrain" \
-      --t1template2mm="$T1wTemplate2mm" \ß
+      --t1template2mm="$T1wTemplate2mm" \
       --t2template="$T2wTemplate" \
       --t2templatebrain="$T2wTemplateBrain" \
       --t2template2mm="$T2wTemplate2mm" \

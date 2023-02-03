@@ -84,17 +84,18 @@ for hemisphere in l r ; do
   #mris_convert -c "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.thickness.shape.gii "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.white "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.thickness.asc
   #rm "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.white.surf.gii "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.pial.surf.gii "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.thickness.shape.gii "$SubjectDIR"/"$SubjectID"/surf/${hemisphere}h.roi.shape.gii
 done
+
 surf="${SubjectDIR}/${SubjectID}/surf"
 hemi="lh"
 
-/Applications/MATLAB_R2022a.app/bin/matlab -nojvm -nosplash << EOF
+${MATLAB_HOME} -nojvm -nosplash << EOF
 addpath $HCPPIPEDIR/global/matlab
 addpath $FREESURFER_HOME/matlab
 corticalthickness('${surf}','${hemi}');
 EOF
 
 hemi="rh"
-/Applications/MATLAB_R2022a.app/bin/matlab -nojvm -nosplash << EOF
+${MATLAB_HOME} -nojvm -nosplash << EOF
 addpath $HCPPIPEDIR/global/matlab
 addpath $FREESURFER_HOME/matlab
 corticalthickness('${surf}','${hemi}');

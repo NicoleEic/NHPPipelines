@@ -8,10 +8,11 @@ echo "This script must be SOURCED to correctly setup the environment prior to ru
 if [[ $OSTYPE == "linux" ]] ; then
     #export FSLDIR=/opt/fmrib/fsl
     . ${FSLDIR}/etc/fslconf/fsl.sh
-    export HCPPIPEDIR=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
-    export FREESURFER_HOME=/opt/fmrib/FreeSurfer_releases/6.0/
+    export HCPPIPEDIR=/vols/Scratch/neichert/NHPPipelines
+    export FREESURFER_HOME=/opt/fmrib/FreeSurfer_releases/7.2.0
     . ${FREESURFER_HOME}/SetUpFreeSurfer.sh > /dev/null 2>&1
-    export CARET7DIR='/opt/fmrib/bin/wb_command'
+    #export CARET7DIR='/opt/fmrib/bin'
+    CARET7DIR='/vols/Scratch/neichert/workbench/bin_rh_linux64'
     export MATLAB_HOME='/opt/fmrib/bin/matlab'
 
 # local laptop
@@ -45,12 +46,13 @@ export MATLAB_COMPILER_RUNTIME=/usr/local/MATLAB/MATLAB_Compiler_Runtime
 export NSLOTS=8
 export FreeSurferLabels="${HCPPIPEDIR_Config}/FreeSurferAllLut.txt"
 #OS="`lsb_release -a | grep Distributor | awk '{print $3}'`"
-OS='NE_local'
 if [  "$OS" = "CentOS" ] ; then
   export MSMBINDIR=/mnt/pub/devel/MSM/MSM_HOCR_v2/Centos
+elif [ "$OS" = "Linux" ] ; then
+  export MSMBINDIR=/vols/Scratch/neichert/myCode/MSM_HOCR_v2/Centos
 elif [  "$OS" = "Ubuntu" ] ; then
   export MSMBINDIR=/mnt/devel/devel/MSM/MSM_HOCR_v2/Ubuntu
-elif [  "$OS" = "NE_local" ] ; then
+elif [  "$OS" = "Darwin" ] ; then
   export MSMBINDIR=/Users/neichert/code/external/MSM_HOCR_macOSX
 fi
 export MSMCONFIGDIR=$HCPPIPEDIR/MSMConfig
