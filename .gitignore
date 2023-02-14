@@ -18,3 +18,9 @@
 *.idea*
 *.txt
 *.prj
+*.log
+*.dat
+sh.e*
+sh.o*
+INIT.o*
+INIT.e*

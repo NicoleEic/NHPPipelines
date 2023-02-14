@@ -1,9 +1,9 @@
-#!/bin/bash 
+#!/bin/bash
 set -e
 
 # Requirements for this script
 #  installed versions of: FSL5.0.5 or higher , FreeSurfer (version 5.2 or higher) ,
-#  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR 
+#  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR
 
 # make pipeline engine happy...
 if [ $# -eq 1 ] ; then
@@ -11,11 +11,11 @@ if [ $# -eq 1 ] ; then
     exit 0
 fi
 
-########################################## PIPELINE OVERVIEW ########################################## 
+########################################## PIPELINE OVERVIEW ##########################################
 
 #TODO
 
-########################################## OUTPUT DIRECTORIES ########################################## 
+########################################## OUTPUT DIRECTORIES ##########################################
 
 #TODO
 
@@ -26,7 +26,7 @@ fi
 source $HCPPIPEDIR/global/scripts/log.shlib  # Logging related functions
 source $HCPPIPEDIR/global/scripts/opts.shlib # Command line option functions
 
-########################################## SUPPORT FUNCTIONS ########################################## 
+########################################## SUPPORT FUNCTIONS ##########################################
 
 # --------------------------------------------------------------------------------
 #  Usage Description Function
@@ -63,7 +63,7 @@ recon_all_seed=`opts_GetOpt1 "--seed" $@`
 #FSLinearTransform=`opts_GetOpt1 "--fslinear" $@`
 GCAdir=`opts_GetOpt1 "--gcadir" $@` # Needed for NHP
 RescaleVolumeTransform=`opts_GetOpt1 "--rescaletrans" $@` # Needed for NHP
-AsegEdit=`opts_GetOpt1 "--asegedit" $@` # Needed to use aseg.edit.mgz 
+AsegEdit=`opts_GetOpt1 "--asegedit" $@` # Needed to use aseg.edit.mgz
 ControlPoints=`opts_GetOpt1 "--controlpoints" $@` # Needed to use $SubjectID/tmp/control.dat, modified by Takuya Hayashi Nov 2017
 WmEdit=`opts_GetOpt1 "--wmedit" $@` # Needed to use wm.edit.mgz, modified by Takuya Hayashi Nov 4th 2015
 T2wFlag=`opts_GetOpt1 "--t2wflag" $@` # T2w, FLAIR or NONE for FreeSurferHiresPial.sh, inserted by Takuya Hayashi Nov 4th 2015
@@ -208,21 +208,21 @@ function runFSinit () {
 
 function runNormalize1 () {
 
-	# Intensity Correction use nu_correct for human and fast for NHP  
-	if [ "$IntensityCor" = "FAST" ] ; then 
+	# Intensity Correction use nu_correct for human and fast for NHP
+	if [ "$IntensityCor" = "FAST" ] ; then
 
 		# Use FAST instead of nu_correct for bias correction, since the former likely better sharpens the histogram.
        		"$PipelineScripts"/IntensityCor.sh "$SubjectDIR"/"$SubjectID"/mri/orig.mgz "$SubjectDIR"/"$SubjectID"/mri/brainmask.orig.mgz \
 		"$SubjectDIR"/"$SubjectID"/mri/nu.mgz $SPECIES
 		recon-all -subjid $SubjectID -sd $SubjectDIR -normalization -openmp ${num_cores} ${seed_cmd_appendix}
 
-	elif [ "$IntensityCor" = "NU" ] || [ "$IntensityCor" = "" ] ; then 
+	elif [ "$IntensityCor" = "NU" ] || [ "$IntensityCor" = "" ] ; then
 		# Call recon-all with flags that are part of "-autorecon1", with the exception of -skullstrip.
-		# -skullstrip of FreeSurfer not reliable for Phase II data because of poor FreeSurfer mri_em_register registrations with Skull on, 
+		# -skullstrip of FreeSurfer not reliable for Phase II data because of poor FreeSurfer mri_em_register registrations with Skull on,
 		# so run registration with PreFreeSurfer masked data and then generate brain mask as usual.
 		recon-all -subjid $SubjectID -sd $SubjectDIR -talairach -nuintensitycor -normalization -openmp ${num_cores} ${seed_cmd_appendix}
 
-	elif [ "$IntensityCor" = "NUP" ] ; then 
+	elif [ "$IntensityCor" = "NUP" ] ; then
 
 		mri_normalize -b 20 -n 5 -g 1 "$SubjectDIR"/"$SubjectID"/mri/nu.mgz "$SubjectDIR"/"$SubjectID"/mri/T1.mgz # MH's tuning for pediatric brain
 		mri_mask "$SubjectDIR"/"$SubjectID"/mri/T1.mgz "$SubjectDIR"/"$SubjectID"/mri/brainmask.mgz \
@@ -250,18 +250,18 @@ function runFSbrainmaskandseg () {
 	elif [ ! -e "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz ] && [ "$BrainMasking" = "HCP" ] ; then
 		cp "$SubjectDIR"/"$SubjectID"/mri/brainmask.orig.mgz "$SubjectDIR"/"$SubjectID"/mri/brainmask.mgz
 	elif  [ -e "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz ] ; then
-		cp "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz "$SubjectDIR"/"$SubjectID"/mri/brainmask.mgz 
+		cp "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz "$SubjectDIR"/"$SubjectID"/mri/brainmask.mgz
 	else
 		cp "$SubjectDIR"/"$SubjectID"/mri/brainmask.orig.mgz "$SubjectDIR"/"$SubjectID"/mri/brainmask.mgz
 	fi
-		
+
 	# Registration and normalization to GCA
 	log_Msg "Second recon-all steps for registration and normaliztion to GCA"
 
 	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -rmneck -skull-lta \
 	-gca RB_all_2008-03-26.gca -gca-dir $GCAdir -gca-skull RB_all_withskull_2008-03-26.gca \
 	-openmp ${num_cores} ${seed_cmd_appendix}
-	cp "$SubjectDIR"/"$SubjectID"/mri/norm.mgz "$SubjectDIR"/"$SubjectID"/mri/norm.orig.mgz 
+	cp "$SubjectDIR"/"$SubjectID"/mri/norm.mgz "$SubjectDIR"/"$SubjectID"/mri/norm.orig.mgz
 
 	log_Msg "Third recon-all steps for segmentation using GCA"
 	# Segmentation with GCA
@@ -271,7 +271,7 @@ function runFSbrainmaskandseg () {
 		mri_ca_label -align -nobigventricles -nowmsa norm.mgz transforms/talairach.m3z "$GCAdir"/RB_all_2008-03-26.gca aseg.auto_noCCseg.mgz
 	fi
 	cd $DIR
- 
+
 }
 
 function runFSaseg () {
@@ -285,7 +285,7 @@ function runFSaseg () {
 	cp aseg.auto.mgz aseg.presurf.mgz
 	cd $DIR
 
-}	
+}
 
 function runNormalize2 () {
 
@@ -297,12 +297,12 @@ function runNormalize2 () {
 
 	recon-all -subjid $SubjectID -sd $SubjectDIR -maskbfs -segmentation
 
-	## Paste claustrum to wm.mgz - Takuya Hayashi, Oct 2017 
+	## Paste claustrum to wm.mgz - Takuya Hayashi, Oct 2017
 	DIR=`pwd`
 	cd "$SubjectDIR"/"$SubjectID"/mri
 	cp wm.mgz wm.orig.mgz
 	mri_convert wm.mgz wm.nii.gz
-	mri_convert aseg+claustrum.mgz aseg+claustrum.nii.gz 
+	mri_convert aseg+claustrum.mgz aseg+claustrum.nii.gz
 	fslmaths aseg+claustrum.nii.gz -thr 138 -uthr 138 -bin -add aseg+claustrum.nii.gz -thr 139 -uthr 139 -bin -mul 250 \
 	-max wm.nii.gz wm.nii.gz # pasting claustrum to wm.mgz
 
@@ -334,7 +334,7 @@ function runNormalize2 () {
 		mri_convert -ns 1 -odt uchar wmlesion_bin_1mm.nii.gz wmlesion_bin_1mm_conform.nii.gz --conform
 		fslmaths wmlesion_bin_1mm_conform.nii.gz -mul 110 -max wm.nii.gz wm.nii.gz
 	fi
-	## convert back to mgz format 
+	## convert back to mgz format
 	mri_convert -ns 1 -odt uchar wm.nii.gz wm.mgz  # save in 8-bit
 	cd $DIR
 
@@ -357,10 +357,12 @@ function runFSwhite () {
 	log_Msg "Fifth recon-all steps for white"
   # NE: -white step fails. mris_place_surface needs --rip-bg-no-annot option
   # NE: need to add -autodetgwstats so that /surf/autodet.gw.stats.lh.dat is created
+
 	recon-all -subjid $SubjectID -sd $SubjectDIR -fill -tessellate -smooth1 -inflate1 -qsphere -fix -autodetgwstats \
 	-openmp ${num_cores} ${seed_cmd_appendix}
 
   # I think this is what the -white option was supposed to do
+  log_Msg 'run fixed section NE'
 	cd "$SubjectDIR"/"$SubjectID"/mri
 	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --wm wm.mgz --threads 1 --invol brain.finalsurfs.mgz --lh --i ../surf/lh.orig --o ../surf/lh.white.preaparc --white --nsmooth 5 --no-rip-midline --no-rip-bg --no-rip-wmsa --no-rip-freeze --no-rip-lesion
 	mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --wm wm.mgz --threads 1 --invol brain.finalsurfs.mgz --rh --i ../surf/rh.orig --o ../surf/rh.white.preaparc --white --nsmooth 5 --no-rip-midline --no-rip-bg --no-rip-wmsa --no-rip-freeze --no-rip-lesion
@@ -368,8 +370,8 @@ function runFSwhite () {
   mris_make_surfaces -aseg ../mri/aseg.presurf -whiteonly -noaparc -mgz -T1 brain.finalsurfs $SubjectID lh
   mris_make_surfaces -aseg ../mri/aseg.presurf -whiteonly -noaparc -mgz -T1 brain.finalsurfs $SubjectID rh
 
-	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --lh --i ../surf/lh.white.preaparc --o ../surf/lh.white --white --nsmooth 0 --rip-label ../label/lh.cortex.label --rip-bg --rip-surf ../surf/lh.white.preaparc --rip-bg-no-annot
-  mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --rh --i ../surf/rh.white.preaparc --o ../surf/rh.white --white --nsmooth 0 --rip-label ../label/rh.cortex.label --rip-bg --rip-surf ../surf/rh.white.preaparc --rip-bg-no-annot
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --lh --i ../surf/lh.white.preaparc --o ../surf/lh.white --white --nsmooth 0 --rip-label ../label/lh.cortex.label --rip-bg --rip-surf ../surf/lh.white.preaparc
+  mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --rh --i ../surf/rh.white.preaparc --o ../surf/rh.white --white --nsmooth 0 --rip-label ../label/rh.cortex.label --rip-bg --rip-surf ../surf/rh.white.preaparc
 
 	# Highres and white stuffs and fine-tune T2w to T1w Reg
 
@@ -391,7 +393,7 @@ function runFSwhite () {
 		CurvStats="-curvstats"
 		AvgCurv="-avgcurv"
 	fi
-	recon-all -subjid $SubjectID -sd $SubjectDIR -smooth2 -inflate2 $CurvStats -sphere 
+	recon-all -subjid $SubjectID -sd $SubjectDIR -smooth2 -inflate2 $CurvStats -sphere
 
 }
 
@@ -467,7 +469,7 @@ exit 0;
 
 function main {
 
-if   [ "$RunMode" = "0" ] ; then 
+if   [ "$RunMode" = "0" ] ; then
 
 	runFSinit;runNormalize1;runFSbrainmaskandseg;runFSaseg;runNormalize2;runFSwhite;runFSsurfreg;runFSpial;runFSfinish;
 
@@ -492,7 +494,7 @@ elif [ "$RunMode" = "4" ] ; then
 		mkdir -p "$SubjectDIR"/"$SubjectID"/tmp
 		cp "$ControlPoints" "$SubjectDIR"/"$SubjectID"/tmp/control.dat
 		# the following line is to suppress error in mris_fix_toplogy
-		for i in lh.curv rh.curv ; do if [ -e "$SubjectDIR"/"$SubjectID"/surf/$i ] ; then rm "$SubjectDIR"/"$SubjectID"/surf/$i ;fi;done 
+		for i in lh.curv rh.curv ; do if [ -e "$SubjectDIR"/"$SubjectID"/surf/$i ] ; then rm "$SubjectDIR"/"$SubjectID"/surf/$i ;fi;done
 	fi
 	runNormalize2;runFSwhite;runFSsurfreg;runFSpial;runFSfinish;
 	rm -rf "$SubjectDIR"/"$SubjectID"/tmp/control.dat
@@ -505,7 +507,7 @@ elif [ "$RunMode" = "5" ] ; then
 			WM="${WM}+"
 		done
 		mv "$SubjectDIR"/"$SubjectID"/mri/wm.mgz "$SubjectDIR"/"$SubjectID"/mri/${WM}.mgz
-		cp $WmEdit "$SubjectDIR"/"$SubjectID"/mri/wm.mgz 
+		cp $WmEdit "$SubjectDIR"/"$SubjectID"/mri/wm.mgz
 	fi
 	runFSwhite;runFSsurfreg;runFSpial;runFSfinish;
 

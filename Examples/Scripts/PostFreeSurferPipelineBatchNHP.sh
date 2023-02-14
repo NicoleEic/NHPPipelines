@@ -3,12 +3,9 @@
 if [[ $OSTYPE == "linux" ]] ; then
   StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives
   ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
-  RUN='fsl_sub -q long.q sh'
-  #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   StudyFolder=/Users/neichert/Downloads/site-ucdavis/derivatives
   ScriptsDir=/Users/neichert/code/NHPPipelines/Examples/Scripts
-  RUN='sh'
 fi
 
 # source this first outside of script
@@ -21,8 +18,16 @@ EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
 StudyFolder=$1;shift
 Subjlist=$@
 
-QUEUE="-T 120"
+QUEUE="-q short.q"
 PRINTCOM=""
+
+if [[ $OSTYPE == "linux" ]] ; then
+  RUN="${FSLDIR}/bin/fsl_sub -N POST ${QUEUE}"
+  #RUN=''
+elif [[ $OSTYPE == "darwin" ]] ; then
+  RUN=''
+fi
+
 
 for Subject in $Subjlist ; do
   #Input Variables
@@ -69,6 +74,5 @@ for Subject in $Subjlist ; do
 #      --mcsigma="$CorrectionSigma" \
 #      --printcom=$PRINTCOM"
 #
-   echo ". ${EnvironmentScript}"
+#   echo ". ${EnvironmentScript}"
 done
-

@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 set -e
 #Subjlist="M126 M128 M129 M131 M132" #Space delimited list of subject IDs
 #StudyFolder="/media/myelin/brainmappers/Connectome_Project/InVivoMacaques" #Location of Subject folders (named by subjectID)
@@ -19,10 +19,9 @@ exit 1
 
 StudyFolder=$1
 Subjlist=$2
-#RunMode=$3
 
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
-RunMode='NE'
+RunMode='0'
 
 #Set up pipeline environment variables and software
 #. ${EnvironmentScript}
@@ -30,21 +29,20 @@ RunMode='NE'
 # Log the originating call
 echo "$@"
 
-#if [ X$SGE_ROOT != X ] ; then
-#    QUEUE="-q long.q"
-#fi
+if [ X$SGE_ROOT != X ] ; then
+   QUEUE="-q long.q"
+fi
+
+if [[ $OSTYPE == "linux" ]] ; then
+  RUN="${FSLDIR}/bin/fsl_sub -N FREE ${QUEUE}"
+  #RUN=''
+elif [[ $OSTYPE == "darwin" ]] ; then
+  RUN=''
+fi
+
 
 PRINTCOM=""
 #PRINTCOM="echo"
-
-########################################## INPUT
-
-
-
-
-########################################## 
-
-#Scripts called by this script do assume they run on the outputs of the PreFreeSurfer Pipeline
 
 ######################################### DO WORK ##########################################
 
@@ -70,7 +68,7 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
 
 	if [ -e "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz ] ; then
    		mkdir -p ${SubjectDIR}/${Subject}_edits
-		cp "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz "$SubjectDIR"/"$SubjectID"_edits/		
+		cp "$SubjectDIR"/"$SubjectID"/mri/brainmask.edit.mgz "$SubjectDIR"/"$SubjectID"_edits/
 	fi
 
   elif [ "$RunMode" = "3" ] ; then
@@ -90,7 +88,7 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
 
   elif [ "$RunMode" = "4" ] ; then
   	if [ -e ${SubjectDIR}/${Subject}/tmp/control.dat ] ; then
-   		mkdir -p ${SubjectDIR}/${Subject}_edits   
+   		mkdir -p ${SubjectDIR}/${Subject}_edits
    		mv ${SubjectDIR}/${Subject}/tmp/control.dat ${SubjectDIR}/${Subject}_edits/
    		ControlPoints="${SubjectDIR}/${Subject}_edits/control.dat"
    		if [ -e ${SubjectDIR}/${Subject}/mri/wm.edit.mgz ] ; then
@@ -99,11 +97,11 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
   		AsegEdit="NONE"
    		WmEdit="NONE"
 	else
-		echo "WARNING: cannot find ${SubjectDIR}/${Subject}/tmp/control.dat. About to run FSnormalize2"; 
+		echo "WARNING: cannot find ${SubjectDIR}/${Subject}/tmp/control.dat. About to run FSnormalize2";
   	fi
   elif [ "$RunMode" = "5" ] ; then
   	if [ -e ${SubjectDIR}/${Subject}/mri/wm.edit.mgz ] ; then
-   		mkdir -p ${SubjectDIR}/${Subject}_edits   
+   		mkdir -p ${SubjectDIR}/${Subject}_edits
    		mv ${SubjectDIR}/${Subject}/mri/wm.edit.mgz ${SubjectDIR}/${Subject}_edits/;
    		WmEdit="${SubjectDIR}/${Subject}_edits/wm.edit.mgz"
    		ControlPoints="NONE"
@@ -115,7 +113,7 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
   Seed="1234"
   ############################################### Modified until here by Takuya Hayashi Nov 4th 2015.
 
-   ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh \
+   ${RUN} ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh \
     --subject="$Subject" \
     --subjectDIR="$SubjectDIR" \
     --t1="$T1wImage" \
@@ -133,7 +131,7 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
     --seed="$Seed" \
     --intensitycor='FAST'\
     --printcom="$PRINTCOM"
-      
+
   # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
 #
 #  echo "set -- --subject="$Subject" \
@@ -155,4 +153,3 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
 #  echo ". ${EnvironmentScript}"
 
 done
-
