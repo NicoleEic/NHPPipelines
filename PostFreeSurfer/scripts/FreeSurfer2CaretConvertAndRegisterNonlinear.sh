@@ -324,6 +324,7 @@ for Hemisphere in L R ; do
 
 	#If desired, run MSMSulc folding-based registration to FS_LR initialized with FS affine
 	if [ ${RegName} = "MSMSulc" ] ; then
+	  echo 'run MSMsulc'
 		#Calculate Affine Transform and Apply
 		if [ ! -e "$AtlasSpaceFolder"/"$NativeFolder"/MSMSulc ] ; then
 			mkdir "$AtlasSpaceFolder"/"$NativeFolder"/MSMSulc

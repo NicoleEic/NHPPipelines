@@ -51,7 +51,9 @@ if [  "$OS" = "CentOS" ] ; then
 elif [  "$OS" = "Ubuntu" ] ; then
   export MSMBINDIR=/mnt/devel/devel/MSM/MSM_HOCR_v2/Ubuntu
 elif [  "$OS" = "NE_local" ] ; then
-  export MSMBINDIR=/Users/neichert/code/external/MSM_HOCR_macOSX
+  #export MSMBINDIR=/Users/neichert/code/external/MSM_HOCR_macOSX
+  #export MSMBINDIR=/Users/neichert/fsl/bin/
+  export MSMBINDIR=/Users/neichert/code/external/MSM_HOCR_v2/MacOSX
 fi
 export MSMCONFIGDIR=$HCPPIPEDIR/MSMConfig
 export FixDir=/mnt/pub/devel/bcil/fix1.06

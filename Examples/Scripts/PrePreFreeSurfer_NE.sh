@@ -14,8 +14,6 @@ else
     echo "$dir already exists"
 fi
 
-
-
 imcp ${StudyFolder}/${Subject}/ses-001/anat/${Subject}_ses-001_run-1_T1w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
 imcp ${StudyFolder}/${Subject}/ses-001/anat/${Subject}_ses-001_run-1_T2w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
 $MRCATDIR/core/bet_macaque.sh ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz ${dir}/${Subject}_ses-001_run-1_T1w_MPR1
