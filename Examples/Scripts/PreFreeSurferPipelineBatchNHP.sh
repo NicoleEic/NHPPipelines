@@ -1,75 +1,33 @@
 #!/bin/bash
-
-#Subjlist="M126 M128 M129 M131 M132" #Space delimited list of subject IDs
-#StudyFolder="/media/myelin/brainmappers/Connectome_Project/InVivoMacaques" #Location of Subject folders (named by subjectID)
-#EnvironmentScript="/media/2TBB/Connectome_Project/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
-
-# Requirements for this script
-#  installed versions of: FSL5.0.2 or higher , FreeSurfer (version 5.2 or higher) , gradunwarp (python code from MGH)
-#  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR , PATH (for gradient_unwarp.py)
-
-#Set up pipeline environment variables and software
-#. ${EnvironmentScript}
-
 StudyFolder=$1
 Subjlist=$2
 
-
-
-# Log the originating call
-echo "$@"
+echo " "
+echo "Subjlist: $Subjlist"
+echo "StudyFolder: $StudyFolder"
 
 if [ X$SGE_ROOT != X ] ; then
     QUEUE="-q long.q"
-    #QUEUE="-q veryshort.q"
-
 fi
 
-PRINTCOM=""
-#PRINTCOM="echo"
-
+logdir=$StudyFolder/../logs
 
 if [[ $OSTYPE == "linux" ]] ; then
-  RUN="${FSLDIR}/bin/fsl_sub -N PRE ${QUEUE}"
+  RUN="${FSLDIR}/bin/fsl_sub -N PRE ${QUEUE} -l ${logdir}"
   #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''
 fi
 
-########################################## INPUTS ##########################################
-
-#Scripts called by this script do NOT assume anything about the form of the input names or paths.
-#This batch script assumes the HCP raw data naming convention, e.g.
-
-#	${StudyFolder}/${Subject}/unprocessed/3T/T1w_MPR1/${Subject}_3T_T1w_MPR1.nii.gz
-#	${StudyFolder}/${Subject}/unprocessed/3T/T1w_MPR2/${Subject}_3T_T1w_MPR2.nii.gz
-
-#	${StudyFolder}/${Subject}/unprocessed/3T/T2w_SPC1/${Subject}_3T_T2w_SPC1.nii.gz
-#	${StudyFolder}/${Subject}/unprocessed/3T/T2w_SPC2/${Subject}_3T_T2w_SPC2.nii.gz
-
-#	${StudyFolder}/${Subject}/unprocessed/3T/T1w_MPR1/${Subject}_3T_FieldMap_Magnitude.nii.gz
-#	${StudyFolder}/${Subject}/unprocessed/3T/T1w_MPR1/${Subject}_3T_FieldMap_Phase.nii.gz
-
-#Change Scan Settings: FieldMap Delta TE, Sample Spacings, and $UnwarpDir to match your images
-#These are set to match the HCP Protocol by default
-
-#If using gradient distortion correction, use the coefficents from your scanner
-#The HCP gradient distortion coefficents are only available through Siemens
-#Gradient distortion in standard scanners like the Trio is much less than for the HCP Skyra.
-
-
 ######################################### DO WORK ##########################################
-
 for Subject in $Subjlist ; do
   echo $Subject
 
   # NE: not sure what's supposed to be in that file. Path definitions?
   #. ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
 
-
   T1wInputImages=${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
   T2wInputImages=${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
-
 
   #Input Images
   #Detect Number of T1w Images
@@ -154,39 +112,4 @@ for Subject in $Subjlist ; do
       --topupconfig="$TopupConfig" \
       --bfsigma="$BiasFieldSmoothingSigma" \
       --printcom=$PRINTCOM
-
-  # # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
-  #
-  # echo "set -- --path=${StudyFolder} \
-  #     --subject=${Subject} \
-  #     --t1=${T1wInputImages} \
-  #     --t2=${T2wInputImages} \
-  #     --t1template=${T1wTemplate} \
-  #     --t1templatebrain=${T1wTemplateBrain} \
-  #     --t1template2mm=${T1wTemplate2mm} \
-  #     --t2template=${T2wTemplate} \
-  #     --t2templatebrain=${T2wTemplateBrain} \
-  #     --t2template2mm=${T2wTemplate2mm} \
-  #     --templatemask=${TemplateMask} \
-  #     --template2mmmask=${Template2mmMask} \
-  #     --brainsize=${BrainSize} \
-  #     --fnirtconfig=${FNIRTConfig} \
-  #     --fmapmag=${MagnitudeInputName} \
-  #     --fmapphase=${PhaseInputName} \
-  #     --echodiff=${TE} \
-  #     --SEPhaseNeg=${SpinEchoPhaseEncodeNegative} \
-  #     --SEPhasePos=${SpinEchoPhaseEncodePositive} \
-  #     --echospacing=${DwellTime} \
-  #     --seunwarpdir=${SEUnwarpDir} \
-  #     --t1samplespacing=${T1wSampleSpacing} \
-  #     --t2samplespacing=${T2wSampleSpacing} \
-  #     --unwarpdir=${UnwarpDir} \
-  #     --gdcoeffs=${GradientDistortionCoeffs} \
-  #     --avgrdcmethod=${AvgrdcSTRING} \
-  #     --topupconfig=${TopupConfig} \
-  #     --bfsigma=${BiasFieldSmoothingSigma} \
-  #     --printcom=${PRINTCOM}"
-
-#  echo ". ${EnvironmentScript}"
-
 done

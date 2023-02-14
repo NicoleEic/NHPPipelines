@@ -1,14 +1,6 @@
 #!/bin/bash
 set -e
-#Subjlist="M126 M128 M129 M131 M132" #Space delimited list of subject IDs
-#StudyFolder="/media/myelin/brainmappers/Connectome_Project/InVivoMacaques" #Location of Subject folders (named by subjectID)
-#EnvironmentScript="/media/2TBB/Connectome_Project/Pipelines/Examples/Scripts/SetUpHCPPipeline.sh" #Pipeline environment script
-
-#source $EnvironmentScript
-
-# Requirements for this script
-#  installed versions of: FSL5.0.2 or higher , FreeSurfer (version 5.2 or higher) , gradunwarp (python code from MGH)
-#  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR , PATH (for gradient_unwarp.py)
+umask u+rw,g+rw # give group read/write permissions to all new files
 
 usage () {
 echo "Usage: $0 <StudyFolder> <SubjectID1@SubjectID2@SubjectID3...> <RunMode>"
@@ -20,29 +12,27 @@ exit 1
 StudyFolder=$1
 Subjlist=$2
 
+echo " "
+echo "Subjlist: $Subjlist"
+echo "StudyFolder: $StudyFolder"
+
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
 RunMode='0'
 
-#Set up pipeline environment variables and software
-#. ${EnvironmentScript}
-
-# Log the originating call
-echo "$@"
-
 if [ X$SGE_ROOT != X ] ; then
-   QUEUE="-q long.q"
+    QUEUE="-q long.q"
 fi
 
+logdir=$StudyFolder/../logs
+
 if [[ $OSTYPE == "linux" ]] ; then
-  RUN="${FSLDIR}/bin/fsl_sub -N FREE ${QUEUE}"
+  RUN="${FSLDIR}/bin/fsl_sub -N FREE ${QUEUE} -l ${logdir}"
   #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''
 fi
 
-
 PRINTCOM=""
-#PRINTCOM="echo"
 
 ######################################### DO WORK ##########################################
 
@@ -131,25 +121,5 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
     --seed="$Seed" \
     --intensitycor='FAST'\
     --printcom="$PRINTCOM"
-
-  # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
-#
-#  echo "set -- --subject="$Subject" \
-#      --subjectDIR="$SubjectDIR" \
-#      --t1="$T1wImage" \
-#      --t1brain="$T1wImageBrain" \
-#      --t2="$T2wImage" \
-#      --fslinear="$FSLinearTransform" \
-#      --gcadir="$GCAdir" \
-#      --rescaletrans="$RescaleVolumeTransform" \
-#     --asegedit="$AsegEdit" \
-#      --controlpoints="$ControlPoints" \
-#      --wmedit="$WmEdit" \
-#      --t2wflag="$T2wFlag" \
-#      --species="$SPECIES" \
-#      --runmode="$RunMode" \
-#      --printcom=$PRINTCOM "
-#
-#  echo ". ${EnvironmentScript}"
 
 done

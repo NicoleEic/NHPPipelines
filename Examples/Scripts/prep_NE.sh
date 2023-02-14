@@ -1,65 +1,92 @@
 #!/bin/bash
 set -e
+umask u+rw,g+rw # give group read/write permissions to all new files
 
-# how to run this script
-#  sh /Users/neichert/code/NHPPipelines/Examples/Scripts/prep_NE.sh
+# -----------------------
+# How to run this script
+# -----------------------
+#  sh /vols/Scratch/neichert/NHPPipelines/Examples/Scripts/prep_NE.sh
 
 # Before running the pipeline make all scripts executable
 #chmod u+x -R /vols/Scratch/neichert/NHPPipelines/*
 # but don't track this in Git:
 # git config core.filemode false
 
+# Requirements for this script
+#  installed versions of: FSL5.0.2 or higher , FreeSurfer (version 5.2 or higher) , gradunwarp (python code from MGH)
+#  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR , PATH (for gradient_unwarp.py)
+
 if [[ $OSTYPE == "linux" ]] ; then
-  origdir=/vols/Scratch/neichert/site-ucdavis
-  StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives
+  origdir=/vols/Data/sj/Nicole/site-ucdavis
+  StudyFolder=$origdir/derivatives
   ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
-  #RUN='fsl_sub -q short.q -N INIT sh'
-  RUN=''
+  logdir=/vols/Data/sj/Nicole/site-ucdavis/logs
+
 elif [[ $OSTYPE == "darwin" ]] ; then
   origdir=/Users/neichert/Downloads/site-ucdavis
-  StudyFolder=/Users/neichert/Downloads/site-ucdavis/derivatives
+  StudyFolder=$origdir/derivatives
   ScriptsDir=/Users/neichert/code/NHPPipelines/Examples/Scripts
-  RUN='sh'
 fi
 
-# source this first outside of script
-. $ScriptsDir/SetUpHCPPipelineNHP.sh
+EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
+. ${EnvironmentScript}
 
-Subjlist="sub-032128" #CHANGE!!
-Task="POST" # "INIT" "PRE" "FREE" "POST" "CLEAN"
+cd $origdir
 
-# run the "RENAME" task
+Subjlist_tot="sub-032125 sub-032126 sub-032127 sub-032128 sub-032129 \
+          sub-032130 sub-032131 sub-032132 sub-032133 sub-032134 \
+          sub-032135 sub-032136 sub-032137 sub-032138 sub-032139 \
+          sub-032140 sub-032141 sub-032142 sub-032143"
+
+Task="PRE" # "INIT" "PRE" "FREE" "POST"
+
+# -----------------------
+# GET INITIAL BRAIN MASK
+# -----------------------
 if [[ $Task = "INIT" ]] ; then
+  Subjlist=$Subjlist_tot
+  RUN1='fsl_sub -q veryshort.q -N INIT -l '$logdir
+  RUN2='fsl_sub -q veryshort.q -j INIT -N INIT_check -l '$logdir
+  cmd_str=''
   for Subject in $Subjlist; do
-    ${RUN} $ScriptsDir/PrePreFreeSurfer_NE.sh $origdir $Subject
+    ${RUN1} $ScriptsDir/PrePreFreeSurfer_NE.sh $origdir $Subject
+    D=$StudyFolder/$Subject/RawData
+    cmd_str="$cmd_str $D/${Subject}_ses-001_run-1_T2w_SPC1 $D/brain_maskT2.nii.gz"
   done
+  ${RUN2} slicesdir -o $cmd_str
 fi
-# check the output of INIT by inspecting:
-# $StudyFolder/$Subject/RawData/${Subject}_ses-001_run-1_T2w_SPC1_brain.nii.gz
-#  It doesn't need to be perfect
+# firefox /vols/Data/sj/Nicole/site-ucdavis/slicesdir/index.html
 
-
-## run the "PRE-FREESURFER" task
+# -----------------------
+# RUN PRE STAGE
+# -----------------------
 if [[ $Task = "PRE" ]] ; then
-  ${RUN} $ScriptsDir/PreFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
-fi
-#
-# check the output of PRE by inspecting:
-# $StudyFolder/$Subject/MNINonLinear/T1w_restore_brain.nii.gz
+  Subjlist=$Subjlist_tot
+  $ScriptsDir/PreFreeSurferPipelineBatchNHP.sh $StudyFolder "${Subjlist[@]}"
 
-## run the "FREESURFER" task
-if [[ $Task = "FREE" ]] ; then
-  ${RUN} $ScriptsDir/FreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
+  # check pre stage
+  RUN='fsl_sub -q veryshort.q -j PRE -N PRE_check -l '$logdir
+  cmd_str=''
+  for Subject in $Subjlist; do
+    TD=$StudyFolder/$Subject/T1w
+    cmd_str="$cmd_str $TD/T1w_acpc_dc_restore.nii.gz $TD/T1w_acpc_brain_mask.nii.gz"
+  done
+  ${RUN} slicesdir -o $cmd_str
 fi
-#
+# firefox /vols/Data/sj/Nicole/site-ucdavis/slicesdir/index.html &
+
+# -----------------------
+# RUN FREE STAGE
+# -----------------------
+if [[ $Task = "FREE" ]] ; then
+  Subjlist=( "${Subjlist_tot[@]/'sub-032143'}" )
+  $ScriptsDir/FreeSurferPipelineBatchNHP.sh $StudyFolder "${Subjlist[@]}"
+fi
+
+
 ## run the "POST-FREESURFER" task
 if [[ $Task = "POST" ]] ; then
-   ${RUN} $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
+  Subjlist="sub-032128"
+  ${RUN} $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
 fi
 #
-## run the "CLEAN-UP" task
-#if [[ $Task = "CLEAN" ]] ; then
-#  $ScriptsDir/CleanupStructuralPipelineBatchNHP.sh \
-#  --StudyFolder="$StudyFolder" \
-#  --SubjList="$Subjlist"
-#fi
