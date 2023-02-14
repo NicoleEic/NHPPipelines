@@ -86,7 +86,6 @@ fi
 
 ## run the "POST-FREESURFER" task
 if [[ $Task = "POST" ]] ; then
-  Subjlist="sub-032128"
+  Subjlist=$Subjlist_tot
   ${RUN} $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
 fi
-#

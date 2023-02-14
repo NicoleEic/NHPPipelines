@@ -228,22 +228,22 @@ for TXw in ${Modalities} ; do
 	--omat=${TXwFolder}/xfms/acpc.mat \
 	--brainsize=${BrainSize}
 
-#### Brain Extraction (FNIRT-based Masking) ####
-    mkdir -p ${TXwFolder}/BrainExtraction_FNIRTbased
-    ${RUN} ${PipelineScripts}/BrainExtraction_FNIRTbasedNHP.sh \
-	--workingdir=${TXwFolder}/BrainExtraction_FNIRTbased \
-	--in=${TXwFolder}/${TXwImage}_acpc \
-	--ref=${TXwTemplateBrain} \
-	--refmask=${TemplateMask} \
-	--ref2mm=${TXwTemplate2mm} \
-	--ref2mmmask=${Template2mmMask} \
-	--outbrain=${TXwFolder}/${TXwImage}_acpc_brain \
-	--outbrainmask=${TXwFolder}/${TXwImage}_acpc_brain_mask \
-	--fnirtconfig=${FNIRTConfig}
+  #echo 'keep initial brain mask for now'
+  #applywarp -i ${TXwFolder}/${TXwImage}_brain_mask -r ${TXwTemplateBrain} -o ${TXwFolder}/${TXwImage}_acpc_brain_mask --premat=${TXwFolder}/xfms/acpc.mat --interp=nn
+  #fslmaths ${T1wFolder}/${T1wImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${T1wFolder}/${T1wImage}_acpc_brain
+
 done
 
-######## END LOOP over T1w and T2w #########
 
+echo 'do bet_macaque'
+$MRCATDIR/core/bet_macaque.sh ${T1wFolder}/${T1wImage}_acpc -fTP 0.8 -fFP 0.8 -f 0.3
+
+applywarp -i ${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz -o ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz -r ${T2wFolder}/${T2wImage}_acpc.nii.gz --usesqform
+fslmaths ${T2wFolder}/${T2wImage}_acpc.nii.gz -mas ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz ${T2wFolder}/${T2wImage}_acpc_brain.nii.gz
+
+echo 'done bet_macaque'
+
+######## END LOOP over T1w and T2w #########
 
 
 #### T2w to T1w Registration and Optional Readout Distortion Correction ####
@@ -299,7 +299,6 @@ else
       ${T1wFolder}/${T2wImage}_acpc_dc \
       ${T1wFolder}/xfms/${T2wImage}_reg_dc
 fi
-
 
 #### Bias Field Correction: Calculate bias field using square root of the product of T1w and T2w iamges.  ####
 if [ ! -z ${BiasFieldSmoothingSigma} ] ; then
