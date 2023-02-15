@@ -39,12 +39,12 @@ Subjlist_tot="sub-032125 sub-032126 sub-032127 sub-032128 sub-032129 \
           sub-032140 sub-032141 sub-032142 sub-032143"
 
 Task="PRE" # "INIT" "PRE" "FREE" "POST"
+Subjlist=$Subjlist_tot
 
 # -----------------------
 # GET INITIAL BRAIN MASK
 # -----------------------
 if [[ $Task = "INIT" ]] ; then
-  Subjlist=$Subjlist_tot
   RUN1='fsl_sub -q veryshort.q -N INIT -l '$logdir
   RUN2='fsl_sub -q veryshort.q -j INIT -N INIT_check -l '$logdir
   cmd_str=''
@@ -61,8 +61,7 @@ fi
 # RUN PRE STAGE
 # -----------------------
 if [[ $Task = "PRE" ]] ; then
-  Subjlist=$Subjlist_tot
-  $ScriptsDir/PreFreeSurferPipelineBatchNHP.sh $StudyFolder "${Subjlist[@]}"
+  #$ScriptsDir/PreFreeSurferPipelineBatchNHP.sh $StudyFolder "${Subjlist[@]}"
 
   # check pre stage
   RUN='fsl_sub -q veryshort.q -j PRE -N PRE_check -l '$logdir
@@ -79,13 +78,22 @@ fi
 # RUN FREE STAGE
 # -----------------------
 if [[ $Task = "FREE" ]] ; then
-  Subjlist=( "${Subjlist_tot[@]/'sub-032143'}" )
   $ScriptsDir/FreeSurferPipelineBatchNHP.sh $StudyFolder "${Subjlist[@]}"
-fi
 
+  # to hold
+  RUN='fsl_sub -q veryshort.q -N FREE_check -j FREE -l '$logdir
+  RUN2='fsl_sub -q veryshort.q -j FREE_check -N FREE_c2 -l '$logdir
+  cmd_str=''
+  for Subject in $Subjlist; do
+    ${RUN} sh $ScriptsDir/FreeSurfer_check_NE.sh $StudyFolder $Subject
+    D=$StudyFolder/$Subject/T1w
+    cmd_str="$cmd_str $D/T1w_acpc_dc_restore.nii.gz $D/WM.nii.gz"
+  done
+  ${RUN2} slicesdir -o $cmd_str
+fi
+# firefox /vols/Data/sj/Nicole/site-ucdavis/slicesdir/index.html
 
 ## run the "POST-FREESURFER" task
 if [[ $Task = "POST" ]] ; then
-  Subjlist=$Subjlist_tot
-  ${RUN} $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
+  $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $StudyFolder $Subjlist
 fi

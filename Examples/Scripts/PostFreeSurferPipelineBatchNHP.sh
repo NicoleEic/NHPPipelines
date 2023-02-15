@@ -1,15 +1,13 @@
 #!/bin/bash
 
 if [[ $OSTYPE == "linux" ]] ; then
-  StudyFolder=/vols/Scratch/neichert/site-ucdavis/derivatives
+  StudyFolder=/vols/Data/sj/Nicole/site-ucdavis/derivatives
   ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
 elif [[ $OSTYPE == "darwin" ]] ; then
   StudyFolder=/Users/neichert/Downloads/site-ucdavis/derivatives
   ScriptsDir=/Users/neichert/code/NHPPipelines/Examples/Scripts
 fi
 
-# source this first outside of script
-#source $ScriptsDir/SetUpHCPPipelineNHP.sh
 
 if [ "$SPECIES" = "" ] ; then echo "ERROR: please export SPECIES first, Macaque or Marmoset"; exit 1;fi
 EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
@@ -18,16 +16,17 @@ EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
 StudyFolder=$1;shift
 Subjlist=$@
 
-QUEUE="-q short.q"
+QUEUE="-q long.q"
 PRINTCOM=""
 
+logdir=$StudyFolder/../logs
+
 if [[ $OSTYPE == "linux" ]] ; then
-  RUN="${FSLDIR}/bin/fsl_sub -N POST ${QUEUE}"
+  RUN="${FSLDIR}/bin/fsl_sub -N POST ${QUEUE} -l ${logdir}"
   #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''
 fi
-
 
 for Subject in $Subjlist ; do
   #Input Variables
@@ -58,21 +57,4 @@ for Subject in $Subjlist ; do
       --printcom=$PRINTCOM
 #      --mcsigma="$CorrectionSigma" \
 
-  # The following lines are used for interactive debugging to set the positional parameters: $1 $2 $3 ...
-#
-#   echo "set -- --path="$StudyFolder" \
-#      --subject="$Subject" \
-#      --surfatlasdir="$SurfaceAtlasDIR" \
-#      --grayordinatesdir="$GrayordinatesSpaceDIR" \
-#      --grayordinatesres="$GrayordinatesResolution" \
-#      --hiresmesh="$HighResMesh" \
-#      --lowresmesh="$LowResMesh" \
-#      --subcortgraylabels="$SubcorticalGrayLabels" \
-#      --freesurferlabels="$FreeSurferLabels" \
-#      --refmyelinmaps="$ReferenceMyelinMaps" \
-#      --regname="$RegName" \
-#      --mcsigma="$CorrectionSigma" \
-#      --printcom=$PRINTCOM"
-#
-#   echo ". ${EnvironmentScript}"
 done
