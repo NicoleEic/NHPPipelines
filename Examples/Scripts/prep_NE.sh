@@ -121,4 +121,4 @@ fi
 if [[ $Task = "POST" ]] ; then
   $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $SD $subj_list
 fi
-# wb_view $SD/
+# wb_view $SD/sub-*/MNINonLinear/fsaverage_LR10k/sub-*.*.pial.10k_fs_LR.surf.gii 
