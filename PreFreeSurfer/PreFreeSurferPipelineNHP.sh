@@ -235,9 +235,20 @@ for TXw in ${Modalities} ; do
 done
 
 
-echo 'do bet_macaque'
-$MRCATDIR/core/bet_macaque.sh ${T1wFolder}/${T1wImage}_acpc -fTP 0.8 -fFP 0.8 -f 0.3
+echo 'do  bet_macaque'
+fTP=0.5
+fFP=0.8
+f=0.3
+[[ $Subject == 'sub-032126' ]] && fTP=0.55; f=0.25
+[[ $Subject == 'sub-032129' ]] && fTP=0.75
+[[ $Subject == 'sub-032131' ]] && fTP=0.85
+[[ $Subject == 'sub-032132' ]] && fTP=0.6
+[[ $Subject == 'sub-032135' ]] && fTP=0.3
+[[ $Subject == 'sub-032138' ]] && fTP=0.8
+[[ $Subject == 'sub-032141' ]] && fTP=0.8
+[[ $Subject == 'sub-032142' ]] && fTP=0.9
 
+$MRCATDIR/core/bet_macaque.sh ${T1wFolder}/${T1wImage}_acpc -fTP $fTP -fFP $fFP -f $f
 applywarp -i ${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz -o ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz -r ${T2wFolder}/${T2wImage}_acpc.nii.gz --usesqform
 fslmaths ${T2wFolder}/${T2wImage}_acpc.nii.gz -mas ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz ${T2wFolder}/${T2wImage}_acpc_brain.nii.gz
 
