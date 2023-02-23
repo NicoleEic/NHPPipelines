@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 set -e
 script_name="SubcorticalProcessing.sh"
 echo "${script_name}: START"
@@ -58,10 +58,11 @@ ${CARET7DIR}/wb_command -cifti-create-label ${ResultsFolder}/${NameOffMRI}_temp_
 
 if [[ `echo "${Sigma} > 0" | bc -l | cut -f1 -d.` == "1" ]]
 then
-    echo "${script_name}: Smoothing and resampling"
+    echo "${script_name}: Smoothing...."
     #this is the whole timeseries, so don't overwrite, in order to allow on-disk writing, then delete temporary
     ${CARET7DIR}/wb_command -cifti-smoothing ${ResultsFolder}/${NameOffMRI}_temp_subject_dilate.dtseries.nii 0 ${Sigma} COLUMN ${ResultsFolder}/${NameOffMRI}_temp_subject_smooth.dtseries.nii -fix-zeros-volume
     #resample, delete temporary
+    echo "${script_name}: Resampling...."
     ${CARET7DIR}/wb_command -cifti-resample ${ResultsFolder}/${NameOffMRI}_temp_subject_smooth.dtseries.nii COLUMN ${ResultsFolder}/${NameOffMRI}_temp_template.dlabel.nii COLUMN ADAP_BARY_AREA CUBIC ${ResultsFolder}/${NameOffMRI}_temp_atlas.dtseries.nii -volume-predilate 10
     rm -f ${ResultsFolder}/${NameOffMRI}_temp_subject_smooth.dtseries.nii
 else
@@ -79,4 +80,3 @@ ${CARET7DIR}/wb_command -cifti-separate ${ResultsFolder}/${NameOffMRI}_temp_atla
 rm -f ${ResultsFolder}/${NameOffMRI}_temp_atlas.dtseries.nii
 
 echo "${script_name}: END"
-

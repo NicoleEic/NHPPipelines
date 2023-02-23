@@ -7,7 +7,7 @@ umask u+rw,g+rw # give group read/write permissions to all new files
 # -----------------------
 #  sh /vols/Scratch/neichert/NHPPipelines/Examples/Scripts/prep_NE.sh
 
-# Before running the pipeline make all scripts executable
+# Before running the pipeline for the first time make all scripts executable
 #chmod u+x -R /vols/Scratch/neichert/NHPPipelines/*
 # but don't track this in Git:
 # git config core.filemode false
@@ -38,8 +38,9 @@ subj_list_tot="sub-032125 sub-032126 sub-032127 sub-032128 sub-032129 \
                sub-032135 sub-032136 sub-032137 sub-032138 sub-032139 \
                sub-032140 sub-032141 sub-032142 sub-032143"
 
-Task="POST" # "INIT" "PRE" "FREE" "POST"
+Task="fMRIS" # "INIT" "PRE" "FREE" "POST"
 subj_list=$subj_list_tot
+#subj_list="sub-032125"
 
 # -----------------------
 # GET INITIAL BRAIN MASK
@@ -121,4 +122,9 @@ fi
 if [[ $Task = "POST" ]] ; then
   $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $SD $subj_list
 fi
-# wb_view $SD/sub-*/MNINonLinear/fsaverage_LR10k/sub-*.*.pial.10k_fs_LR.surf.gii 
+# wb_view $SD/sub-*/MNINonLinear/fsaverage_LR10k/sub-*.*.pial.10k_fs_LR.surf.gii
+
+
+if [[ $Task = "fMRIS" ]] ; then
+  $ScriptsDir/GenericfMRISurfaceProcessingPipelineBatchNHP.sh $SD "${subj_list[@]}"
+fi
