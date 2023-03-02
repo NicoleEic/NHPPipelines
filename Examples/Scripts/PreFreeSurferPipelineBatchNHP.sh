@@ -6,11 +6,17 @@ echo " "
 echo "Subjlist: $Subjlist"
 echo "StudyFolder: $StudyFolder"
 
-if [ X$SGE_ROOT != X ] ; then
-    QUEUE="-q long.q"
+if [[ "$StudyFolder" == *"newcastle"* ]] ; then
+    ses='00'
+elif [[ "$StudyFolder" == *"davis"* ]] ; then
+    ses='001'
 fi
 
 logdir=$StudyFolder/../logs
+
+if [ X$SGE_ROOT != X ] ; then
+    QUEUE="-q long.q"
+fi
 
 if [[ $OSTYPE == "linux" ]] ; then
   RUN="${FSLDIR}/bin/fsl_sub -N PRE ${QUEUE} -l ${logdir}"
@@ -26,8 +32,8 @@ for Subject in $Subjlist ; do
   # NE: not sure what's supposed to be in that file. Path definitions?
   #. ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
 
-  T1wInputImages=${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
-  T2wInputImages=${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
+  T1wInputImages=${Subject}_ses-${ses}_run-1_T1w_MPR1.nii.gz
+  T2wInputImages=${Subject}_ses-${ses}_run-1_T2w_SPC1.nii.gz
 
   #Input Images
   #Detect Number of T1w Images

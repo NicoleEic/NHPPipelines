@@ -228,27 +228,33 @@ for TXw in ${Modalities} ; do
 	--omat=${TXwFolder}/xfms/acpc.mat \
 	--brainsize=${BrainSize}
 
-  #echo 'keep initial brain mask for now'
-  #applywarp -i ${TXwFolder}/${TXwImage}_brain_mask -r ${TXwTemplateBrain} -o ${TXwFolder}/${TXwImage}_acpc_brain_mask --premat=${TXwFolder}/xfms/acpc.mat --interp=nn
-  #fslmaths ${T1wFolder}/${T1wImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${T1wFolder}/${T1wImage}_acpc_brain
 
 done
 
+if [[ "$TXwFolder" == *"newcastle"* ]] ; then
+    ses='00'
+    echo 'keep initial brain mask for now'
+    applywarp -i ${TXwFolder}/${TXwImage}_brain_mask -r ${TXwTemplateBrain} -o ${TXwFolder}/${TXwImage}_acpc_brain_mask --premat=${TXwFolder}/xfms/acpc.mat --interp=nn
+    fslmaths ${T1wFolder}/${T1wImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${T1wFolder}/${T1wImage}_acpc_brain
 
-echo 'do  bet_macaque'
-fTP=0.5
-fFP=0.8
-f=0.3
-[[ $Subject == 'sub-032126' ]] && fTP=0.55; f=0.25
-[[ $Subject == 'sub-032129' ]] && fTP=0.75
-[[ $Subject == 'sub-032131' ]] && fTP=0.85
-[[ $Subject == 'sub-032132' ]] && fTP=0.6
-[[ $Subject == 'sub-032135' ]] && fTP=0.3
-[[ $Subject == 'sub-032138' ]] && fTP=0.8
-[[ $Subject == 'sub-032141' ]] && fTP=0.8
-[[ $Subject == 'sub-032142' ]] && fTP=0.9
+elif [[ "$TXwFolder" == *"davis"* ]] ; then
+    ses='001'
+    echo 'do  bet_macaque'
+    fTP=0.5
+    fFP=0.8
+    f=0.3
+    [[ $Subject == 'sub-032126' ]] && fTP=0.55; f=0.25
+    [[ $Subject == 'sub-032129' ]] && fTP=0.75
+    [[ $Subject == 'sub-032131' ]] && fTP=0.85
+    [[ $Subject == 'sub-032132' ]] && fTP=0.6
+    [[ $Subject == 'sub-032135' ]] && fTP=0.3
+    [[ $Subject == 'sub-032138' ]] && fTP=0.8
+    [[ $Subject == 'sub-032141' ]] && fTP=0.8
+    [[ $Subject == 'sub-032142' ]] && fTP=0.9
+    $MRCATDIR/core/bet_macaque.sh ${T1wFolder}/${T1wImage}_acpc -fTP $fTP -fFP $fFP -f $f
+fi
 
-$MRCATDIR/core/bet_macaque.sh ${T1wFolder}/${T1wImage}_acpc -fTP $fTP -fFP $fFP -f $f
+echo 'get to T2w space'
 applywarp -i ${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz -o ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz -r ${T2wFolder}/${T2wImage}_acpc.nii.gz --usesqform
 fslmaths ${T2wFolder}/${T2wImage}_acpc.nii.gz -mas ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz ${T2wFolder}/${T2wImage}_acpc_brain.nii.gz
 

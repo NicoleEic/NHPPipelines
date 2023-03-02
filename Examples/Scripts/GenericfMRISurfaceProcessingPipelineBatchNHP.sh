@@ -24,7 +24,7 @@ EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
 logdir=$StudyFolder/../logs
 
 if [[ $OSTYPE == "linux" ]] ; then
-  RUN="${FSLDIR}/bin/fsl_sub -N fmriS -q long.q -l ${logdir}"
+  RUN="${FSLDIR}/bin/fsl_sub -N fmriS -jregstd_a -q long.q -l ${logdir}"
   #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''

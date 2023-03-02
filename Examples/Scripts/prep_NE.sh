@@ -2,11 +2,6 @@
 set -e
 umask u+rw,g+rw # give group read/write permissions to all new files
 
-# -----------------------
-# How to run this script
-# -----------------------
-#  sh /vols/Scratch/neichert/NHPPipelines/Examples/Scripts/prep_NE.sh
-
 # Before running the pipeline for the first time make all scripts executable
 #chmod u+x -R /vols/Scratch/neichert/NHPPipelines/*
 # but don't track this in Git:
@@ -16,31 +11,34 @@ umask u+rw,g+rw # give group read/write permissions to all new files
 #  installed versions of: FSL5.0.2 or higher , FreeSurfer (version 5.2 or higher) , gradunwarp (python code from MGH)
 #  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR , PATH (for gradient_unwarp.py)
 
-if [[ $OSTYPE == "linux" ]] ; then
-  origdir=/vols/Data/sj/Nicole/site-ucdavis
-  SD=$origdir/derivatives
-  ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
-  logdir=/vols/Data/sj/Nicole/site-ucdavis/logs
-
-elif [[ $OSTYPE == "darwin" ]] ; then
-  origdir=/Users/neichert/Downloads/site-ucdavis
-  SD=$origdir/derivatives
-  ScriptsDir=/Users/neichert/code/NHPPipelines/Examples/Scripts
-fi
+dataset='site-newcastle'
+origdir=/vols/Data/sj/Nicole/${dataset}
+SD=$origdir/derivatives
+ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
+logdir=/vols/Data/sj/Nicole/${dataset}/logs
 
 EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
 . ${EnvironmentScript}
 
 cd $origdir
 
-subj_list_tot="sub-032125 sub-032126 sub-032127 sub-032128 sub-032129 \
-               sub-032130 sub-032131 sub-032132 sub-032133 sub-032134 \
-               sub-032135 sub-032136 sub-032137 sub-032138 sub-032139 \
-               sub-032140 sub-032141 sub-032142 sub-032143"
 
-Task="fMRIS" # "INIT" "PRE" "FREE" "POST"
+if [[ $dataset = 'site-ucdavis' ]] ; then
+    subj_list_tot="sub-032125 sub-032126 sub-032127 sub-032128 sub-032129 \
+                   sub-032130 sub-032131 sub-032132 sub-032133 sub-032134 \
+                   sub-032135 sub-032136 sub-032137 sub-032138 sub-032139 \
+                   sub-032140 sub-032141 sub-032142 sub-032143"
+elif [[ $dataset = 'site-newcastle' ]] ; then
+    subj_list_tot="sub-032097 sub-032100 sub-032102 sub-032104 sub-032105 \
+                   sub-032106 sub-032107 sub-032108 sub-032109 sub-032110"
+fi
+# -----------------------
+# How to run this script
+# -----------------------
+#  sh /vols/Scratch/neichert/NHPPipelines/Examples/Scripts/prep_NE.sh
+Task="FREE" # "INIT" "PRE" "FREE" "POST"
 subj_list=$subj_list_tot
-#subj_list="sub-032125"
+#subj_list="sub-032097"
 
 # -----------------------
 # GET INITIAL BRAIN MASK
@@ -48,19 +46,21 @@ subj_list=$subj_list_tot
 if [[ $Task = "INIT" ]] ; then
   RUN1='fsl_sub -q veryshort.q -N INIT -l '$logdir
   RUN2='fsl_sub -q veryshort.q -j INIT -N INIT_check -l '$logdir
+  #RUN1=''
+  #RUN2=''
   cmd_str=''
   for subj in $subj_list; do
     ${RUN1} $ScriptsDir/PrePreFreeSurfer_NE.sh $origdir $subj
     D=$SD/$subj/RawData
-    cmd_str="$cmd_str $D/${subj}_ses-001_run-1_T2w_SPC1 $D/brain_maskT2.nii.gz"
+    cmd_str="$cmd_str $D/${subj}_ses-00_run-1_T1w_MPR1 $D/T2w_brain_mask.nii.gz"
   done
   ${RUN2} slicesdir -o $cmd_str
 fi
 # firefox /vols/Data/sj/Nicole/site-ucdavis/slicesdir/index.html
+#subj='sub-032105'; D=/vols/Data/sj/Nicole/site-newcastle/derivatives/${subj}/RawData/ ; fsleyes $D/${subj}_ses-00_run-1_T1w_MPR1 $D/${subj}_ses-00_run-1_T2w_SPC1 $D/init_brain_mask -cm red-yellow -a 20
 
 # -----------------------
 # RUN PRE STAGE
-# -----------------------
 if [[ $Task = "PRE" ]] ; then
   $ScriptsDir/PreFreeSurferPipelineBatchNHP.sh $SD "${subj_list[@]}"
 

@@ -3,10 +3,10 @@ set -e
 umask u+rw,g+rw # give group read/write permissions to all new files
 
 origdir=$1
-Subject=$2
+subj=$2
 
 echo " "
-echo "Subject: $Subject"
+echo "subj: $subj"
 echo "origdir: $origdir"
 
 if [[ $OSTYPE == "linux" ]] ; then
@@ -18,7 +18,7 @@ fi
 . ${EnvironmentScript}
 
 
-dir=${origdir}/derivatives/${Subject}/RawData
+dir=${origdir}/derivatives/${subj}/RawData
 if [[ ! -e $dir ]]; then
     mkdir -p $dir
     echo $dir
@@ -26,15 +26,51 @@ else
     echo "$dir already exists"
 fi
 
-imcp ${origdir}/${Subject}/ses-001/anat/${Subject}_ses-001_run-1_T1w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz
-imcp ${origdir}/${Subject}/ses-001/anat/${Subject}_ses-001_run-1_T2w.nii.gz  ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz
 
+if [[ "$origdir" == *"newcastle"* ]] ; then
+    case $subj in
+        'sub-032097' )
+            ses='002' ;;
+         'sub-032100' )
+            ses='003' ;;
+         'sub-032102')
+            ses='002' ;;
+         'sub-032104')
+            ses='003' ;;
+            *)
+            ses='001' ;;
+    esac
+    settings='-f 0.2 -fTP 0.05 -fFP 0.1 -s 75'
+elif [[ "$origdir" == *"davis"* ]] ; then
+    settings='-fTP 0.8 -fFP 0.8 -f 0.3'
+    ses='001'
+fi
 
-$MRCATDIR/core/bet_macaque.sh ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz ${dir}/${Subject}_ses-001_run-1_T1w_MPR1  -fTP 0.8 -fFP 0.8 -f 0.3
-fslmaths ${dir}/${Subject}_ses-001_run-1_T1w_MPR1_brain.nii.gz -bin -dilD -dilD -dilD ${dir}/brain_mask.nii.gz
-#flirt -dof 6 -in ${dir}/${Subject}_ses-001_run-1_T1w_MPR1.nii.gz -ref ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz -omat ${dir}/mat.mat
-# assuming T1w and T2w overlap already
+imcp ${origdir}/${subj}/ses-${ses}/anat/${subj}_ses-${ses}_run-1_T1w.nii.gz ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz
+imcp ${origdir}/${subj}/ses-${ses}/anat/${subj}_ses-${ses}_run-1_T2w.nii.gz ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz
+
+if [[ "$origdir" == *"newcastle"* ]] ; then
+    # based on T1w
+    #$MRCATDIR/core/bet_macaque.sh ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz ${dir}/init -m $settings
+    # based on T2w
+    #$MRCATDIR/core/bet_macaque.sh ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz ${dir}/init
+
+    # based on T1w/T2w
+    #fslmaths ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz -div ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz ${dir}/T1wDividedByT2w
+    #fslmaths ${dir}/T1wDividedByT2w -mas ${dir}/init_brain_mask ${dir}/T1wDividedByT2w_init
+    #$MRCATDIR/core/bet_macaque.sh ${dir}/T1wDividedByT2w_init ${dir}/T1w
+    echo 'use manual brain mask'
+    cp ${dir}/T1w_brain_mask_NE.nii.gz ${dir}/T1w_brain_mask.nii.gz
+
+else
+    $MRCATDIR/core/bet_macaque.sh ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz ${dir}/T1w -m $settings
+fi
+
+fslmaths ${dir}/${subj}_ses-00_run-1_T1w_MPR1 -mas ${dir}/T1w_brain_mask $dir/${subj}_ses-00_run-1_T1w_MPR1_brain
+
+#flirt -dof 6 -in ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz -ref ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz -omat ${dir}/mat.mat
+# assuming T1w and T2w overlap already:
 echo 'get T2w brain mask'
-applywarp -i ${dir}/brain_mask.nii.gz -o ${dir}/brain_maskT2.nii.gz -r ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz --usesqform
-fslmaths ${dir}/${Subject}_ses-001_run-1_T2w_SPC1.nii.gz -mas ${dir}/brain_maskT2.nii.gz ${dir}/${Subject}_ses-001_run-1_T2w_SPC1_brain.nii.gz
+applywarp -i ${dir}/T1w_brain_mask -o ${dir}/T2w_brain_mask -r ${dir}/${subj}_ses-00_run-1_T2w_SPC1 --usesqform
+fslmaths ${dir}/${subj}_ses-00_run-1_T2w_SPC1 -mas ${dir}/T2w_brain_mask ${dir}/${subj}_ses-00_run-1_T2w_SPC1_brain
 echo 'done'
