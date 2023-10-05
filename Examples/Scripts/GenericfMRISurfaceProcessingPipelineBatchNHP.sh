@@ -1,10 +1,12 @@
 #!/bin/bash
 StudyFolder=$1
 Subjlist=$2
+Tasklist=$3
 
 echo " "
 echo "Subjlist: $Subjlist"
 echo "StudyFolder: $StudyFolder"
+echo "TaskList: $Tasklist"
 
 if [[ $OSTYPE == "linux" ]] ; then
   origdir=/vols/Data/sj/Nicole/site-ucdavis
@@ -24,16 +26,17 @@ EnvironmentScript="$ScriptsDir/SetUpHCPPipelineNHP.sh"
 logdir=$StudyFolder/../logs
 
 if [[ $OSTYPE == "linux" ]] ; then
-  RUN="${FSLDIR}/bin/fsl_sub -N fmriS -jregstd_a -q long.q -l ${logdir}"
+  RUN="${FSLDIR}/bin/fsl_sub -j POST -N fmriS -q long.q -l ${logdir}"
   #RUN=''
 elif [[ $OSTYPE == "darwin" ]] ; then
   RUN=''
 fi
 
 PRINTCOM=""
-Tasklist="FH_func_cleaned HF_func_cleaned"
 FinalfMRIResolution=1.25
 for Subject in $Subjlist ; do
+    echo 'do' ${Subject}
+
   #if [ -e ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt ] ; then
   # . ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
   #else
@@ -42,6 +45,7 @@ for Subject in $Subjlist ; do
   # exit 1;
   #fi
   for fMRIName in $Tasklist ; do
+    echo 'do' ${fMRIName}
     fMRIName=`remove_ext $fMRIName`
     LowResMesh="`echo $LowResMesh | sed -e 's/@/ /g' | awk '{print $NF}'`"
     #FinalfMRIResolution="1.25" #Needs to match what is in fMRIVolume

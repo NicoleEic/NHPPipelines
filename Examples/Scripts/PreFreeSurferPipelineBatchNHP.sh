@@ -10,6 +10,8 @@ if [[ "$StudyFolder" == *"newcastle"* ]] ; then
     ses='00'
 elif [[ "$StudyFolder" == *"davis"* ]] ; then
     ses='001'
+elif [[ "$StudyFolder" == *"Jerome"* ]] ; then
+    ses='00'
 fi
 
 logdir=$StudyFolder/../logs
@@ -27,13 +29,13 @@ fi
 
 ######################################### DO WORK ##########################################
 for Subject in $Subjlist ; do
-  echo $Subject
+    echo $Subject
 
-  # NE: not sure what's supposed to be in that file. Path definitions?
-  #. ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
+    # NE: not sure what's supposed to be in that file. Path definitions?
+    #. ${StudyFolder}/${Subject}/RawData/hcppipe_conf.txt
 
-  T1wInputImages=${Subject}_ses-${ses}_run-1_T1w_MPR1.nii.gz
-  T2wInputImages=${Subject}_ses-${ses}_run-1_T2w_SPC1.nii.gz
+    T1wInputImages=${Subject}_ses-${ses}_run-1_T1w_MPR1.nii.gz
+    T2wInputImages=${Subject}_ses-${ses}_run-1_T2w_SPC1.nii.gz
 
   #Input Images
   #Detect Number of T1w Images

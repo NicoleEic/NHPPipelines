@@ -46,10 +46,11 @@ elif [[ "$origdir" == *"davis"* ]] ; then
     ses='001'
 fi
 
-imcp ${origdir}/${subj}/ses-${ses}/anat/${subj}_ses-${ses}_run-1_T1w.nii.gz ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz
-imcp ${origdir}/${subj}/ses-${ses}/anat/${subj}_ses-${ses}_run-1_T2w.nii.gz ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz
 
 if [[ "$origdir" == *"newcastle"* ]] ; then
+    imcp ${origdir}/${subj}/ses-${ses}/anat/${subj}_ses-${ses}_run-1_T1w.nii.gz ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz
+    imcp ${origdir}/${subj}/ses-${ses}/anat/${subj}_ses-${ses}_run-1_T2w.nii.gz ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz
+
     # based on T1w
     #$MRCATDIR/core/bet_macaque.sh ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz ${dir}/init -m $settings
     # based on T2w
@@ -62,8 +63,20 @@ if [[ "$origdir" == *"newcastle"* ]] ; then
     echo 'use manual brain mask'
     cp ${dir}/T1w_brain_mask_NE.nii.gz ${dir}/T1w_brain_mask.nii.gz
 
-else
+elif [[ "$origdir" == *"davis"* ]] ; then
+    imcp ${origdir}/${subj}/ses-001/anat/${subj}_ses-${ses}_run-1_T1w.nii.gz ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz
+    imcp ${origdir}/${subj}/ses-001/anat/${subj}_ses-${ses}_run-1_T2w.nii.gz ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz
     $MRCATDIR/core/bet_macaque.sh ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz ${dir}/T1w -m $settings
+elif [[ "$origdir" == *"Jerome"* ]] ; then
+    echo 'use restored brain and brainmask from other pipeline'
+    img=/vols/Scratch/neichert/monkeyRS/${subj}/structural/struct_restore.nii.gz
+    sh $MRCATDIR/core/swapdims.sh $img x y z ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz 'image'
+
+    img=/vols/Scratch/neichert/monkeyRS/${subj}/structural/struct_brain_mask.nii.gz
+    sh $MRCATDIR/core/swapdims.sh $img x y z ${dir}/T1w_brain_mask.nii.gz 'image'
+
+    # reuse T1w as T2w.......
+    imcp ${dir}/${subj}_ses-00_run-1_T1w_MPR1.nii.gz ${dir}/${subj}_ses-00_run-1_T2w_SPC1.nii.gz
 fi
 
 fslmaths ${dir}/${subj}_ses-00_run-1_T1w_MPR1 -mas ${dir}/T1w_brain_mask $dir/${subj}_ses-00_run-1_T1w_MPR1_brain

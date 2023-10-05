@@ -107,10 +107,10 @@ log_Msg "mris_make_surface 1 using T1w hires"
 mris_make_surfaces -variablesigma $VARIABLESIGMA $PSIGMA $MAXTHICKNESS $MINGRAY $MAXGRAY -white NOWRITE -aseg aseg.hires -orig white.deformed -filled filled.hires -wm wm.hires -sdir $SubjectDIR -T1 $T1wHires $SubjectID lh
 mris_make_surfaces -variablesigma $VARIABLESIGMA $PSIGMA $MAXTHICKNESS $MINGRAY $MAXGRAY -white NOWRITE -aseg aseg.hires -orig white.deformed -filled filled.hires -wm wm.hires -sdir $SubjectDIR -T1 $T1wHires $SubjectID rh
 
-cp $SubjectDIR/$SubjectID/surf/lh.pial $SubjectDIR/$SubjectID/surf/lh.pial.preT2
-cp $SubjectDIR/$SubjectID/surf/rh.pial $SubjectDIR/$SubjectID/surf/rh.pial.preT2
 
 if [ "$T2wFlag" != "NONE" ] ; then
+	cp $SubjectDIR/$SubjectID/surf/lh.pial $SubjectDIR/$SubjectID/surf/lh.pial.preT2
+	cp $SubjectDIR/$SubjectID/surf/rh.pial $SubjectDIR/$SubjectID/surf/rh.pial.preT2
 
 	log_Msg "mris_make_surface 1 using $T2wHires"
 	#For mris_make_surface with correct arguments #Could go from 3 to 2 potentially...
@@ -186,12 +186,12 @@ if [ "$T2wFlag" != "NONE" ] ; then
 	cp $SubjectDIR/$SubjectID/surf/lh.pial $SubjectDIR/$SubjectID/surf/lh.pial.one
 	cp $SubjectDIR/$SubjectID/surf/rh.pial $SubjectDIR/$SubjectID/surf/rh.pial.one
 
-#Check if FreeSurfer is version 5.2.0 or not.  If it is not, use new -first_wm_peak mris_make_surfaces flag
-if [ -z `cat ${FREESURFER_HOME}/build-stamp.txt | grep v5.2.0` ] ; then
-  VARIABLESIGMA="4"
-else
-  VARIABLESIGMA="2"
-fi
+	#Check if FreeSurfer is version 5.2.0 or not.  If it is not, use new -first_wm_peak mris_make_surfaces flag
+	if [ -z `cat ${FREESURFER_HOME}/build-stamp.txt | grep v5.2.0` ] ; then
+	  VARIABLESIGMA="4"
+	else
+	  VARIABLESIGMA="2"
+	fi
 
 	# marmoset data does not work well for the second round T1w-based pial estimation - pial is not inflated enough Takuya Hayashi Jan 2018
 	log_Msg "mris_make_surface 2 using T1w_hires.greynorm"
@@ -242,19 +242,12 @@ fi
 	fi
 
 else
+	log_Msg "No T2w Flag option"
 
-	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../pial --hemi lh
-	mri_surf2surf --s $SubjectID --sval-xyz pial.preT2 --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../pial --hemi rh
+	# NE fix
 
-	cp $SubjectDIR/$SubjectID/surf/lh.thickness.preT2 $SubjectDIR/$SubjectID/surf/lh.thickness
-	cp $SubjectDIR/$SubjectID/surf/rh.thickness.preT2 $SubjectDIR/$SubjectID/surf/rh.thickness
-
-	cp $SubjectDIR/$SubjectID/surf/lh.area.pial.preT2 $SubjectDIR/$SubjectID/surf/lh.area.pial
-	cp $SubjectDIR/$SubjectID/surf/rh.area.pial.preT2 $SubjectDIR/$SubjectID/surf/rh.area.pial
-
-	cp $SubjectDIR/$SubjectID/surf/lh.curv.pial.preT2 $SubjectDIR/$SubjectID/surf/lh.curv.pial
-	cp $SubjectDIR/$SubjectID/surf/rh.curv.pial.preT2 $SubjectDIR/$SubjectID/surf/rh.curv.pial
-
+	mri_surf2surf --s $SubjectID --sval-xyz pial --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/lh.pial --hemi lh
+	mri_surf2surf --s $SubjectID --sval-xyz pial --reg $regII $mridir/orig.mgz --tval-xyz "$mridir"/T1w_hires.nii.gz --tval "$mridir"/../surf/rh.pial --hemi rh
 fi
 
 echo -e "\n END: FreeSurferHiresPial"

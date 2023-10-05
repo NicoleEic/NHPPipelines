@@ -17,7 +17,7 @@ echo "Subjlist: $Subjlist"
 echo "StudyFolder: $StudyFolder"
 
 # see ${HCPPIPEDIR}/FreeSurfer/FreeSurferPipelineNHP.sh about what the runmodes do
-RunMode='0'
+RunMode='NE'
 
 if [ X$SGE_ROOT != X ] ; then
     QUEUE="-q long.q"
@@ -45,7 +45,13 @@ for Subject in `echo $Subjlist | sed -e 's/@/ /g'` ; do
   T1wImageBrain="${StudyFolder}/${Subject}/T1w/T1w_acpc_dc_restore_brain.nii.gz" #T1w FreeSurfer Input (Full Resolution)
   T2wImage="${StudyFolder}/${Subject}/T1w/T2w_acpc_dc_restore.nii.gz" #T2w FreeSurfer Input (Full Resolution)
   FSLinearTransform="${HCPPIPEDIR_Templates}/fs_xfms/eye.xfm" #Identity
-  T2wFlag="${T2wFlag:=T2w}" # T2w, FLAIR or NONE. Default is T2w
+
+    if [[ "$StudyFolder" == *"Jerome"* ]] ; then
+      T2wFlag="${T2wFlag:=NONE}" # T2w, FLAIR or NONE. Default is T2w
+      T2wFlag="NONE"
+    else
+      T2wFlag="${T2wFlag:=T2w}" # T2w, FLAIR or NONE. Default is T2w
+  fi
   #GCAdir="${HCPPIPEDIR_Templates}/MacaqueYerkes19" #Template Dir with FreeSurfer NHP GCA and TIF files
   #RescaleVolumeTransform="${HCPPIPEDIR_Templates}/fs_xfms/Macaque_rescale" #Transforms to undo the effects of faking the dimensions to 1mm
   ############################################### Modified from here by Takuya Hayashi Nov 4th 2015 - Nov 2017.

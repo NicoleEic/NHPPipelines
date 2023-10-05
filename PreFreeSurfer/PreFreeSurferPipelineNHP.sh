@@ -231,13 +231,7 @@ for TXw in ${Modalities} ; do
 
 done
 
-if [[ "$TXwFolder" == *"newcastle"* ]] ; then
-    ses='00'
-    echo 'keep initial brain mask for now'
-    applywarp -i ${TXwFolder}/${TXwImage}_brain_mask -r ${TXwTemplateBrain} -o ${TXwFolder}/${TXwImage}_acpc_brain_mask --premat=${TXwFolder}/xfms/acpc.mat --interp=nn
-    fslmaths ${T1wFolder}/${T1wImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${T1wFolder}/${T1wImage}_acpc_brain
-
-elif [[ "$TXwFolder" == *"davis"* ]] ; then
+if [[ "$TXwFolder" == *"davis"* ]] ; then
     ses='001'
     echo 'do  bet_macaque'
     fTP=0.5
@@ -252,12 +246,21 @@ elif [[ "$TXwFolder" == *"davis"* ]] ; then
     [[ $Subject == 'sub-032141' ]] && fTP=0.8
     [[ $Subject == 'sub-032142' ]] && fTP=0.9
     $MRCATDIR/core/bet_macaque.sh ${T1wFolder}/${T1wImage}_acpc -fTP $fTP -fFP $fFP -f $f
+
+    echo 'get to T2w space'
+    applywarp -i ${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz -o ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz -r ${T2wFolder}/${T2wImage}_acpc.nii.gz --usesqform
+    fslmaths ${T2wFolder}/${T2wImage}_acpc.nii.gz -mas ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz ${T2wFolder}/${T2wImage}_acpc_brain.nii.gz
+else
+    ses='00'
+    echo 'keep initial brain mask for now'
+    applywarp -i ${TXwFolder}/${TXwImage}_brain_mask -r ${TXwTemplateBrain} -o ${TXwFolder}/${TXwImage}_acpc_brain_mask --premat=${TXwFolder}/xfms/acpc.mat --interp=nn
+    fslmaths ${T1wFolder}/${T1wImage}_acpc -mas ${T1wFolder}/${T1wImage}_acpc_brain_mask ${T1wFolder}/${T1wImage}_acpc_brain
+
+    echo 'get to T2w space'
+    applywarp -i ${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz -o ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz -r ${T2wFolder}/${T2wImage}_acpc.nii.gz --usesqform
+    fslmaths ${T2wFolder}/${T2wImage}_acpc.nii.gz -mas ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz ${T2wFolder}/${T2wImage}_acpc_brain.nii.gz
+
 fi
-
-echo 'get to T2w space'
-applywarp -i ${T1wFolder}/${T1wImage}_acpc_brain_mask.nii.gz -o ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz -r ${T2wFolder}/${T2wImage}_acpc.nii.gz --usesqform
-fslmaths ${T2wFolder}/${T2wImage}_acpc.nii.gz -mas ${T2wFolder}/${T2wImage}_acpc_brain_mask.nii.gz ${T2wFolder}/${T2wImage}_acpc_brain.nii.gz
-
 echo 'done bet_macaque'
 
 ######## END LOOP over T1w and T2w #########

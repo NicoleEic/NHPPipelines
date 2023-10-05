@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# Wrapper to run NHP-HCP structural pipeline and surface fMRI processing
+
 set -e
 umask u+rw,g+rw # give group read/write permissions to all new files
 
@@ -11,7 +14,7 @@ umask u+rw,g+rw # give group read/write permissions to all new files
 #  installed versions of: FSL5.0.2 or higher , FreeSurfer (version 5.2 or higher) , gradunwarp (python code from MGH)
 #  environment: FSLDIR , FREESURFER_HOME , HCPPIPEDIR , CARET7DIR , PATH (for gradient_unwarp.py)
 
-dataset='site-newcastle'
+dataset='Jerome'
 origdir=/vols/Data/sj/Nicole/${dataset}
 SD=$origdir/derivatives
 ScriptsDir=/vols/Scratch/neichert/NHPPipelines/Examples/Scripts
@@ -28,17 +31,26 @@ if [[ $dataset = 'site-ucdavis' ]] ; then
                    sub-032130 sub-032131 sub-032132 sub-032133 sub-032134 \
                    sub-032135 sub-032136 sub-032137 sub-032138 sub-032139 \
                    sub-032140 sub-032141 sub-032142 sub-032143"
+    task_list="run-1_func_cleaned run-2_func_cleaned"
 elif [[ $dataset = 'site-newcastle' ]] ; then
     subj_list_tot="sub-032097 sub-032100 sub-032102 sub-032104 sub-032105 \
                    sub-032106 sub-032107 sub-032108 sub-032109 sub-032110"
+    task_list="run-1_func_cleaned run-2_func_cleaned"
+
+elif [[ $dataset = 'Jerome' ]] ; then
+    subj_list_tot='orson orvil puzzle sadif tickle tim travis valhalla voodoo winky'
+    task_list="run-1_func_cleaned"
 fi
 # -----------------------
 # How to run this script
 # -----------------------
-#  sh /vols/Scratch/neichert/NHPPipelines/Examples/Scripts/prep_NE.sh
-Task="FREE" # "INIT" "PRE" "FREE" "POST"
-subj_list=$subj_list_tot
-#subj_list="sub-032097"
+#  sh /vols/Scratch/neichert/NHPPipelines/Examples/Scripts/the_wrapper_of_wrappers.sh
+
+Task="fMRIS" # "INIT" "PRE" "FREE" "POST" "fMRIS"
+#subj_list=$subj_list_tot
+subj_list="orvil puzzle sadif tickle tim travis valhalla voodoo winky"
+#subj_list="orson"
+#subj_list=("${subj_list_tot[@]/'sub-032107'}")
 
 # -----------------------
 # GET INITIAL BRAIN MASK
@@ -52,7 +64,7 @@ if [[ $Task = "INIT" ]] ; then
   for subj in $subj_list; do
     ${RUN1} $ScriptsDir/PrePreFreeSurfer_NE.sh $origdir $subj
     D=$SD/$subj/RawData
-    cmd_str="$cmd_str $D/${subj}_ses-00_run-1_T1w_MPR1 $D/T2w_brain_mask.nii.gz"
+    cmd_str="$cmd_str $D/${subj}_ses-00_run-1_T1w_MPR1 $D/T1w_brain_mask.nii.gz"
   done
   ${RUN2} slicesdir -o $cmd_str
 fi
@@ -122,9 +134,9 @@ fi
 if [[ $Task = "POST" ]] ; then
   $ScriptsDir/PostFreeSurferPipelineBatchNHP.sh $SD $subj_list
 fi
-# wb_view $SD/sub-*/MNINonLinear/fsaverage_LR10k/sub-*.*.pial.10k_fs_LR.surf.gii
+# wb_view $SD/*/MNINonLinear/fsaverage_LR10k/*.*.pial.10k_fs_LR.surf.gii
 
 
 if [[ $Task = "fMRIS" ]] ; then
-  $ScriptsDir/GenericfMRISurfaceProcessingPipelineBatchNHP.sh $SD "${subj_list[@]}"
+  $ScriptsDir/GenericfMRISurfaceProcessingPipelineBatchNHP.sh $SD "${subj_list[@]}" "${task_list[@]}"
 fi

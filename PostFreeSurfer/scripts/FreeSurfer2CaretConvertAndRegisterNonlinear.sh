@@ -145,6 +145,7 @@ for LowResMesh in ${LowResMeshes} ; do
 done
 
 #Find c_ras offset between FreeSurfer surface and volume and generate matrix to transform surfaces
+echo 'do c_ras.mat'
 MatrixX=$(mri_info "$FreeSurferFolder"/mri/brain.finalsurfs.mgz | grep "c_r" | cut -d "=" -f 5 | sed s/" "/""/g)
 MatrixY=$(mri_info "$FreeSurferFolder"/mri/brain.finalsurfs.mgz | grep "c_a" | cut -d "=" -f 5 | sed s/" "/""/g)
 MatrixZ=$(mri_info "$FreeSurferFolder"/mri/brain.finalsurfs.mgz | grep "c_s" | cut -d "=" -f 5 | sed s/" "/""/g)
@@ -153,7 +154,8 @@ echo "0 1 0 ""$MatrixY" >> "$FreeSurferFolder"/mri/c_ras.mat
 echo "0 0 1 ""$MatrixZ" >> "$FreeSurferFolder"/mri/c_ras.mat
 echo "0 0 0 1" >> "$FreeSurferFolder"/mri/c_ras.mat
 
-#Convert FreeSurfer Volumes
+
+echo 'Convert FreeSurfer Volumes'
 for Image in wmparc aparc.a2009s+aseg aparc+aseg ; do
 	if [ -e "$FreeSurferFolder"/mri/"$Image".mgz ] ; then
 		mri_convert -rt nearest -rl "$T1wFolder"/"$T1wImage".nii.gz "$FreeSurferFolder"/mri/"$Image".mgz "$T1wFolder"/"$Image"_1mm.nii.gz
@@ -164,14 +166,14 @@ for Image in wmparc aparc.a2009s+aseg aparc+aseg ; do
 	fi
 done
 
-#Create FreeSurfer Brain Mask
+echo 'Create FreeSurfer Brain Mask'
 fslmaths "$T1wFolder"/wmparc_1mm.nii.gz -bin -dilD -dilD -dilD -ero -ero "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz
 ${CARET7DIR}/wb_command -volume-fill-holes "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz
 fslmaths "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz -bin "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz
 applywarp --rel --interp=nn -i "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz -r "$AtlasSpaceFolder"/"$AtlasSpaceT1wImage" --premat=$FSLDIR/etc/flirtsch/ident.mat -o "$T1wFolder"/"$T1wImageBrainMask".nii.gz
 applywarp --rel --interp=nn -i "$T1wFolder"/"$T1wImageBrainMask"_1mm.nii.gz -r "$AtlasSpaceFolder"/"$AtlasSpaceT1wImage" -w "$AtlasTransform" -o "$AtlasSpaceFolder"/"$T1wImageBrainMask".nii.gz
 
-#Add volume files to spec files
+echo 'Add volume files to spec files'
 ${CARET7DIR}/wb_command -add-to-spec-file "$T1wFolder"/"$NativeFolder"/"$Subject".native.wb.spec INVALID "$T1wFolder"/"$T2wImage".nii.gz
 ${CARET7DIR}/wb_command -add-to-spec-file "$T1wFolder"/"$NativeFolder"/"$Subject".native.wb.spec INVALID "$T1wFolder"/"$T1wImage".nii.gz
 
@@ -189,7 +191,7 @@ for LowResMesh in ${LowResMeshes} ; do
 	${CARET7DIR}/wb_command -add-to-spec-file "$T1wFolder"/fsaverage_LR"$LowResMesh"k/"$Subject"."$LowResMesh"k_fs_LR.wb.spec INVALID "$T1wFolder"/"$T1wImage".nii.gz
 done
 
-#Import Subcortical ROIs
+ echo 'Import Subcortical ROIs'
 for GrayordinatesResolution in ${GrayordinatesResolutions} ; do
 	cp "$GrayordinatesSpaceDIR"/Atlas_ROIs."$GrayordinatesResolution".nii.gz "$AtlasSpaceFolder"/ROIs/Atlas_ROIs."$GrayordinatesResolution".nii.gz
 	applywarp --interp=nn -i "$AtlasSpaceFolder"/wmparc.nii.gz -r "$AtlasSpaceFolder"/ROIs/Atlas_ROIs."$GrayordinatesResolution".nii.gz -o "$AtlasSpaceFolder"/ROIs/wmparc."$GrayordinatesResolution".nii.gz
@@ -212,7 +214,7 @@ for Hemisphere in L R ; do
 		Structure="CORTEX_RIGHT"
 	fi
 
-	#native Mesh Processing
+	echo 'native Mesh Processing'
 	#Convert and volumetrically register white and pial surfaces makign linear and nonlinear copies, add each to the appropriate spec file
 	Types="ANATOMICAL@GRAY_WHITE ANATOMICAL@PIAL"
 	i=1
@@ -235,6 +237,7 @@ for Hemisphere in L R ; do
 	done
 
 	#Create midthickness by averaging white and pial surfaces and use it to make inflated surfacess
+	echo 'create midthickness'
 	for Folder in "$T1wFolder" "$AtlasSpaceFolder" ; do
 		${CARET7DIR}/wb_command -surface-average "$Folder"/"$NativeFolder"/"$Subject"."$Hemisphere".midthickness.native.surf.gii -surf "$Folder"/"$NativeFolder"/"$Subject"."$Hemisphere".white.native.surf.gii -surf "$Folder"/"$NativeFolder"/"$Subject"."$Hemisphere".pial.native.surf.gii
 		${CARET7DIR}/wb_command -set-structure "$Folder"/"$NativeFolder"/"$Subject"."$Hemisphere".midthickness.native.surf.gii ${Structure} -surface-type ANATOMICAL -surface-secondary-type MIDTHICKNESS
